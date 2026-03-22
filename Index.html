@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#D6EEFB">
+<title>잭슨's SNS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+:root {
+  --sky-50: #F0F8FF;
+  --sky-100: #E1F1FC;
+  --sky-200: #C5E4F9;
+  --sky-300: #9AD2F3;
+  --sky-400: #6BBDE8;
+  --sky-500: #4AA8D8;
+  --sky-600: #3490C0;
+  --sky-700: #2A7099;
+  --sky-warm: #FFF8F2;
+  --sky-peach: #FFE8D6;
+  --sky-pink: #FFD6E0;
+  --sky-mint: #D4F5E9;
+  --accent: #FF7E9D;
+  --accent-soft: rgba(255,126,157,0.12);
+  --text-primary: #1E3A4C;
+  --text-secondary: #5A8296;
+  --text-muted: #94B3C2;
+  --bg-card: rgba(255,255,255,0.82);
+  --bg-card-solid: #FFFFFF;
+  --shadow-soft: 0 2px 20px rgba(106,189,232,0.1);
+  --shadow-medium: 0 4px 30px rgba(106,189,232,0.15);
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { 
+  height: 100%; overflow: hidden;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: linear-gradient(170deg, #D6EEFB 0%, #E8F4FC 25%, #F5F0EB 55%, #FFF8F2 100%);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app { height: 100%; display: flex; flex-direction: column; max-width: 520px; margin: 0 auto; position: relative; overflow: hidden; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(106,189,232,0.25); border-radius: 3px; }
+
+/* Animations */
+@keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+@keyframes slideDown { from { transform:translateY(-20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+@keyframes float { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-8px) } }
+@keyframes pulse { 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.08) } }
+@keyframes ripple { 0%{ transform:scale(0); opacity:0.5 } 100%{ transform:scale(4); opacity:0 } }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes heartBeat { 0%{ transform:scale(1) } 15%{ transform:scale(1.3) } 30%{ transform:scale(1) } 45%{ transform:scale(1.2) } 60%{ transform:scale(1) } }
+
+.fade-in { animation: fadeIn 0.3s ease; }
+.fade-in-up { animation: fadeInUp 0.4s ease; }
+.slide-up { animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1); }
+
+/* ═══ LOADING SCREEN ═══ */
+.loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: linear-gradient(170deg, #D6EEFB, #E8F4FC 40%, #FFF8F2);
+}
+.loading-logo { font-size: 56px; animation: float 2.5s ease-in-out infinite; }
+.loading-title { font-family: 'Quicksand', sans-serif; font-size: 26px; font-weight: 700; color: var(--sky-600); margin-top: 12px; }
+.loading-spinner { width: 28px; height: 28px; border: 3px solid var(--sky-200); border-top-color: var(--sky-500); border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 20px; }
+
+/* ═══ AUTH SCREEN ═══ */
+.auth-bg {
+  height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px; position: relative; overflow: hidden;
+}
+.auth-cloud { position: absolute; opacity: 0.2; animation: float 8s ease-in-out infinite; font-size: 50px; pointer-events: none; }
+.auth-cloud-1 { top: 8%; left: 8%; animation-delay: 0s; }
+.auth-cloud-2 { top: 18%; right: 6%; font-size: 36px; animation-delay: 2s; }
+.auth-cloud-3 { bottom: 15%; left: 12%; font-size: 42px; animation-delay: 4s; }
+
+.auth-card {
+  background: var(--bg-card); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border-radius: 28px; padding: 40px 28px 32px; width: 100%; max-width: 400px;
+  box-shadow: var(--shadow-medium); text-align: center; z-index: 1;
+  border: 1px solid rgba(255,255,255,0.6);
+  animation: fadeInUp 0.6s ease;
+}
+.auth-logo { font-size: 52px; margin-bottom: 4px; }
+.auth-title { font-family: 'Quicksand', sans-serif; font-size: 26px; font-weight: 800; color: var(--sky-700); letter-spacing: -0.5px; }
+.auth-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; margin-bottom: 24px; font-weight: 500; }
+
+.auth-toggle { display: flex; background: var(--sky-100); border-radius: 14px; padding: 3px; margin-bottom: 20px; }
+.auth-toggle button {
+  flex: 1; padding: 10px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700;
+  cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.25s;
+  font-family: inherit;
+}
+.auth-toggle button.active { background: #fff; color: var(--sky-600); box-shadow: 0 2px 10px rgba(106,189,232,0.2); }
+
+.input-field {
+  width: 100%; padding: 14px 16px; border-radius: 14px;
+  border: 1.5px solid var(--sky-200); font-size: 15px; outline: none;
+  margin-bottom: 12px; background: rgba(255,255,255,0.7);
+  color: var(--text-primary); font-family: inherit; transition: border-color 0.2s;
+}
+.input-field:focus { border-color: var(--sky-400); }
+.input-field::placeholder { color: var(--text-muted); }
+
+.error-msg {
+  color: var(--accent); font-size: 13px; font-weight: 600; margin-bottom: 12px;
+  background: var(--accent-soft); border-radius: 10px; padding: 8px 12px;
+}
+
+.btn-primary {
+  width: 100%; padding: 15px; border-radius: 16px; border: none;
+  background: linear-gradient(135deg, var(--sky-400), var(--sky-600));
+  color: #fff; font-size: 16px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(74,168,216,0.35); transition: transform 0.15s, box-shadow 0.15s;
+  font-family: inherit; margin-top: 4px;
+}
+.btn-primary:active { transform: scale(0.97); }
+
+.group-step { text-align: center; animation: fadeInUp 0.4s ease; }
+.group-step-icon { font-size: 42px; margin-bottom: 8px; }
+.group-step h3 { font-size: 18px; font-weight: 800; color: var(--sky-700); margin-bottom: 8px; }
+.group-step p { font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; }
+
+/* ═══ HEADER ═══ */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; flex-shrink: 0;
+  background: rgba(214,238,251,0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(106,189,232,0.15);
+  z-index: 50;
+}
+.header-logo { font-family: 'Quicksand', sans-serif; font-size: 19px; font-weight: 800; color: var(--sky-600); }
+.header-logo span { font-size: 20px; margin-right: 4px; }
+.header-actions { display: flex; gap: 2px; }
+.header-btn {
+  background: none; border: none; cursor: pointer; padding: 8px; color: var(--sky-500);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.header-btn:active { background: var(--sky-100); }
+.header-btn svg { width: 22px; height: 22px; }
+
+/* ═══ MAIN CONTENT ═══ */
+.main-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+/* ═══ MEMBER BAR ═══ */
+.member-bar {
+  display: flex; gap: 14px; padding: 14px 16px; overflow-x: auto;
+  -webkit-overflow-scrolling: touch; flex-shrink: 0;
+}
+.member-bar::-webkit-scrollbar { display: none; }
+.member-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.member-avatar {
+  width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; box-shadow: 0 2px 10px rgba(106,189,232,0.25);
+  border: 2.5px solid #fff;
+}
+.member-chip-name { font-size: 11px; color: var(--text-secondary); font-weight: 600; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+
+/* ═══ POST CARD ═══ */
+.post-card {
+  background: var(--bg-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-lg); margin: 10px 12px;
+  box-shadow: var(--shadow-soft); overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.5);
+  animation: fadeInUp 0.35s ease;
+}
+.post-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
+.post-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.post-meta { flex: 1; }
+.post-author { font-weight: 700; font-size: 14px; color: var(--sky-700); }
+.post-time { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 1px; }
+.post-badge { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; }
+.post-badge.private { color: var(--accent); }
+.post-badge.public { color: var(--sky-400); }
+.post-badge svg { width: 12px; height: 12px; }
+.post-delete { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 6px; opacity: 0.5; }
+.post-delete:active { opacity: 1; }
+
+.post-text { padding: 4px 16px 12px; font-size: 15px; line-height: 1.65; color: var(--text-primary); word-break: break-word; white-space: pre-wrap; }
+.post-media { padding: 0 12px 10px; }
+.post-media img, .post-media video { width: 100%; border-radius: 16px; object-fit: cover; max-height: 420px; background: var(--sky-100); }
+
+.post-actions { display: flex; gap: 20px; padding: 8px 16px 12px; border-top: 1px solid rgba(106,189,232,0.08); }
+.action-btn {
+  display: flex; align-items: center; gap: 5px; background: none; border: none;
+  cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 4px 0;
+  font-family: inherit; transition: color 0.15s;
+}
+.action-btn.liked { color: var(--accent); }
+.action-btn.liked svg { animation: heartBeat 0.5s ease; }
+.action-btn svg { width: 20px; height: 20px; }
+
+/* Comments */
+.comments-section { padding: 0 16px 14px; border-top: 1px solid rgba(106,189,232,0.06); }
+.comment-item { display: flex; gap: 8px; margin-top: 10px; align-items: flex-start; animation: fadeIn 0.2s ease; }
+.comment-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.comment-bubble { background: rgba(106,189,232,0.07); border-radius: 14px; padding: 7px 12px; flex: 1; }
+.comment-author { font-weight: 700; font-size: 12px; color: var(--sky-600); margin-right: 6px; }
+.comment-text { font-size: 13px; color: var(--text-primary); line-height: 1.45; }
+.comment-input-row { display: flex; gap: 8px; margin-top: 10px; }
+.comment-input {
+  flex: 1; border: 1.5px solid var(--sky-200); border-radius: 20px;
+  padding: 9px 14px; font-size: 13px; outline: none; background: rgba(255,255,255,0.7);
+  color: var(--text-primary); font-family: inherit;
+}
+.comment-input:focus { border-color: var(--sky-400); }
+.comment-send {
+  background: linear-gradient(135deg, var(--sky-400), var(--sky-500)); border: none;
+  border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; flex-shrink: 0;
+}
+.comment-send svg { width: 16px; height: 16px; }
+
+/* ═══ EMPTY STATE ═══ */
+.empty-state { text-align: center; padding: 60px 24px; animation: fadeIn 0.5s ease; }
+.empty-state .icon { font-size: 52px; margin-bottom: 14px; }
+.empty-state h3 { font-size: 17px; font-weight: 700; color: var(--sky-600); margin-bottom: 6px; }
+.empty-state p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* ═══ TAB BAR ═══ */
+.tab-bar {
+  display: flex; align-items: flex-end; justify-content: space-around;
+  padding: 6px 0; padding-bottom: calc(8px + var(--safe-bottom));
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(106,189,232,0.12);
+  flex-shrink: 0; z-index: 50;
+}
+.tab-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; cursor: pointer; padding: 4px 14px;
+  color: var(--text-muted); transition: color 0.2s; font-family: inherit;
+}
+.tab-btn.active { color: var(--sky-500); }
+.tab-btn svg { width: 24px; height: 24px; }
+.tab-label { font-size: 10px; font-weight: 700; }
+.tab-badge {
+  position: absolute; top: -4px; right: -8px; background: var(--accent);
+  color: #fff; font-size: 9px; font-weight: 700; border-radius: 10px;
+  padding: 1px 5px; min-width: 16px; text-align: center;
+}
+
+.fab-wrap { display: flex; align-items: center; justify-content: center; padding-bottom: 6px; }
+.fab {
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--sky-400), var(--sky-600));
+  border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 22px rgba(74,168,216,0.4);
+  transform: translateY(-12px); transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab:active { transform: translateY(-12px) scale(0.92); }
+.fab svg { width: 26px; height: 26px; }
+
+/* ═══ CHAT ═══ */
+.chat-container { display: flex; flex-direction: column; height: 100%; }
+.chat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid rgba(106,189,232,0.1);
+  flex-shrink: 0;
+}
+.chat-title { font-weight: 700; font-size: 16px; color: var(--sky-700); }
+.chat-count { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 12px 12px 8px; -webkit-overflow-scrolling: touch; }
+.chat-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 14px; }
+
+.msg-row { display: flex; gap: 8px; margin-bottom: 4px; animation: fadeIn 0.2s ease; }
+.msg-row.mine { justify-content: flex-end; }
+.msg-row.other { justify-content: flex-start; }
+.msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.msg-content { max-width: 72%; }
+.msg-author { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 2px; margin-left: 4px; }
+.msg-bubble {
+  border-radius: 18px 18px 18px 4px; padding: 10px 14px;
+  font-size: 14px; line-height: 1.5; word-break: break-word; white-space: pre-wrap;
+}
+.msg-row.other .msg-bubble { background: rgba(106,189,232,0.1); color: var(--text-primary); }
+.msg-row.mine .msg-bubble {
+  background: linear-gradient(135deg, var(--sky-400), var(--sky-500));
+  color: #fff; border-radius: 18px 18px 4px 18px;
+}
+.msg-bubble img { max-width: 200px; border-radius: 12px; margin-top: 4px; display: block; }
+.msg-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+.msg-row.mine .msg-time { justify-content: flex-end; }
+.msg-read { font-size: 9px; color: var(--sky-400); font-weight: 600; }
+
+.chat-input-bar {
+  display: flex; gap: 8px; padding: 10px 12px;
+  padding-bottom: calc(10px + var(--safe-bottom));
+  border-top: 1px solid rgba(106,189,232,0.1);
+  background: rgba(255,255,255,0.8); flex-shrink: 0;
+  align-items: flex-end;
+}
+.chat-extras { display: flex; gap: 2px; align-items: center; }
+.chat-extras button {
+  background: none; border: none; cursor: pointer; padding: 8px; color: var(--sky-500);
+  display: flex; align-items: center; border-radius: 10px;
+}
+.chat-extras button:active { background: var(--sky-100); }
+.chat-extras svg { width: 22px; height: 22px; }
+.chat-input {
+  flex: 1; border: 1.5px solid var(--sky-200); border-radius: 22px;
+  padding: 11px 16px; font-size: 14px; outline: none;
+  background: rgba(255,255,255,0.9); color: var(--text-primary); font-family: inherit;
+  max-height: 100px; resize: none;
+}
+.chat-input:focus { border-color: var(--sky-400); }
+.chat-send {
+  background: linear-gradient(135deg, var(--sky-400), var(--sky-500)); border: none;
+  border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; flex-shrink: 0; transition: transform 0.15s;
+}
+.chat-send:active { transform: scale(0.9); }
+.chat-send svg { width: 20px; height: 20px; }
+
+/* Emoji Picker */
+.emoji-picker {
+  position: absolute; bottom: 100%; left: 0; right: 0;
+  background: #fff; border-radius: 20px 20px 0 0; box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+  padding: 16px; max-height: 260px; overflow-y: auto;
+  animation: slideUp 0.25s ease; z-index: 10;
+}
+.emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.emoji-btn { background: none; border: none; font-size: 24px; padding: 6px; cursor: pointer; border-radius: 8px; transition: background 0.15s; }
+.emoji-btn:active { background: var(--sky-100); }
+
+/* ═══ PROFILE ═══ */
+.profile-container { padding: 0 16px 20px; }
+.profile-header { display: flex; flex-direction: column; align-items: center; padding: 28px 0 20px; animation: fadeInUp 0.4s ease; }
+.profile-avatar { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 4px 20px rgba(106,189,232,0.25); border: 3px solid #fff; }
+.profile-name { font-size: 22px; font-weight: 800; color: var(--sky-700); margin-top: 12px; }
+.profile-username { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+.profile-stats { display: flex; gap: 36px; margin-top: 22px; }
+.stat-item { display: flex; flex-direction: column; align-items: center; }
+.stat-num { font-size: 20px; font-weight: 800; color: var(--sky-600); }
+.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+.profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; border-radius: 16px; overflow: hidden; margin-top: 16px; }
+.grid-item { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--sky-100); cursor: pointer; }
+.grid-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+.grid-item:active img { transform: scale(1.03); }
+.grid-item video { width: 100%; height: 100%; object-fit: cover; }
+.grid-text { padding: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.4; display: flex; align-items: center; justify-content: center; text-align: center; height: 100%; }
+.grid-private { position: absolute; top: 6px; right: 6px; color: var(--accent); opacity: 0.8; }
+.grid-private svg { width: 14px; height: 14px; }
+.grid-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); color: #fff; font-size: 28px; }
+
+.btn-logout {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; margin-top: 24px; border-radius: 16px;
+  background: var(--accent-soft); border: 1.5px solid rgba(255,126,157,0.2);
+  color: var(--accent); font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.btn-logout svg { width: 18px; height: 18px; }
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(30,58,76,0.2); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.modal {
+  background: var(--bg-card-solid); border-radius: 24px 24px 0 0; width: 100%;
+  max-width: 520px; max-height: 92vh; overflow: auto;
+  animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid rgba(106,189,232,0.1);
+  position: sticky; top: 0; background: var(--bg-card-solid); z-index: 1;
+}
+.modal-close { background: none; border: none; cursor: pointer; color: var(--sky-500); padding: 4px; display: flex; }
+.modal-close svg { width: 24px; height: 24px; }
+.modal-title { font-weight: 700; font-size: 16px; color: var(--sky-700); }
+.modal-post-btn {
+  background: linear-gradient(135deg, var(--sky-400), var(--sky-500)); border: none;
+  border-radius: 20px; padding: 7px 20px; color: #fff; font-weight: 700;
+  font-size: 14px; cursor: pointer; font-family: inherit;
+}
+.modal-post-btn:disabled { opacity: 0.4; }
+
+.post-textarea {
+  width: 100%; min-height: 130px; border: none; outline: none;
+  padding: 16px; font-size: 16px; color: var(--text-primary); resize: none;
+  line-height: 1.6; background: transparent; font-family: inherit;
+}
+.post-textarea::placeholder { color: var(--text-muted); }
+
+.preview-wrap { position: relative; padding: 0 16px 12px; }
+.preview-wrap img, .preview-wrap video { width: 100%; border-radius: 16px; max-height: 280px; object-fit: cover; }
+.preview-remove {
+  position: absolute; top: 8px; right: 24px; background: rgba(0,0,0,0.5);
+  color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px;
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+
+.modal-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px 16px; border-top: 1px solid rgba(106,189,232,0.08);
+}
+.media-pick-btn {
+  display: flex; align-items: center; gap: 6px; color: var(--sky-500);
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+  background: none; border: none; padding: 6px 0;
+}
+.media-pick-btn svg { width: 20px; height: 20px; }
+.privacy-toggle {
+  display: flex; align-items: center; gap: 5px;
+  border-radius: 20px; padding: 7px 14px; border: none;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all 0.2s;
+}
+.privacy-toggle.public { background: rgba(106,189,232,0.12); color: var(--sky-500); }
+.privacy-toggle.private { background: var(--accent-soft); color: var(--accent); }
+.privacy-toggle svg { width: 14px; height: 14px; }
+
+/* ═══ INVITE MODAL ═══ */
+.invite-content { padding: 24px 24px 32px; text-align: center; }
+.invite-content .icon { font-size: 48px; margin-bottom: 12px; }
+.invite-content p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+.code-box {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(106,189,232,0.06); border-radius: 16px; padding: 14px 16px;
+  border: 1.5px dashed rgba(106,189,232,0.3);
+}
+.code-text { font-family: 'Quicksand', monospace; font-size: 15px; font-weight: 700; color: var(--sky-600); letter-spacing: 0.5px; word-break: break-all; }
+.btn-copy {
+  display: flex; align-items: center; gap: 5px; background: linear-gradient(135deg, var(--sky-400), var(--sky-500));
+  border: none; border-radius: 12px; padding: 9px 14px; color: #fff;
+  font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0; font-family: inherit;
+}
+.btn-copy svg { width: 14px; height: 14px; }
+
+/* ═══ MEDIA VIEWER ═══ */
+.media-viewer {
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.92);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.media-viewer img, .media-viewer video { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+.media-viewer-close {
+  position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2);
+  border: none; color: #fff; border-radius: 50%; width: 40px; height: 40px;
+  font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* Toast */
+.toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: var(--sky-700); color: #fff; padding: 10px 20px; border-radius: 12px;
+  font-size: 13px; font-weight: 600; z-index: 999; animation: slideDown 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+</style>
+
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// 잭슨's SNS — Complete App
+// ══════════════════════════════════════════════════════════════
+
+// ─── Firebase Config ───
+// ★★★ 사용자가 자신의 Firebase 프로젝트 정보로 교체해야 합니다 ★★★
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDunCZpFNUUgnDet-lw4niLbCvVO4WQkaQ",
+  authDomain: "jackson-s-sns-practice.firebaseapp.com",
+  projectId: "jackson-s-sns-practice",
+  storageBucket: "jackson-s-sns-practice.firebasestorage.app",
+  messagingSenderId: "449794120985",
+  appId: "1:449794120985:web:c2e51982559f379bb63988",
+  measurementId: "G-7TKD87PR13"
+};
+
+// ─── Initialize Firebase ───
+let db, fbInitialized = false;
+try {
+  const app = firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  fbInitialized = true;
+} catch(e) {
+  console.log("Firebase not configured, using localStorage fallback");
+}
+
+// ─── LocalStorage Fallback (for demo/testing without Firebase) ───
+const LS = {
+  get(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
+  set(key, val) { localStorage.setItem(key, JSON.stringify(val)); },
+  remove(key) { localStorage.removeItem(key); }
+};
+
+// ─── Data Layer Abstraction ───
+const DataStore = {
+  async getUser(username) {
+    if (fbInitialized) {
+      const doc = await db.collection('users').doc(username.toLowerCase()).get();
+      return doc.exists ? doc.data() : null;
+    }
+    return LS.get('user:' + username.toLowerCase());
+  },
+  async setUser(username, data) {
+    if (fbInitialized) {
+      await db.collection('users').doc(username.toLowerCase()).set(data);
+    } else {
+      LS.set('user:' + username.toLowerCase(), data);
+    }
+  },
+  async getMembers(groupCode) {
+    if (fbInitialized) {
+      const doc = await db.collection('groups').doc(groupCode).get();
+      return doc.exists ? (doc.data().members || []) : [];
+    }
+    return LS.get('members:' + groupCode) || [];
+  },
+  async addMember(groupCode, member) {
+    if (fbInitialized) {
+      await db.collection('groups').doc(groupCode).set(
+        { members: firebase.firestore.FieldValue.arrayUnion(member) },
+        { merge: true }
+      );
+    } else {
+      const members = LS.get('members:' + groupCode) || [];
+      if (!members.find(m => m.id === member.id)) {
+        members.push(member);
+        LS.set('members:' + groupCode, members);
+      }
+    }
+  },
+  async getPosts(groupCode) {
+    if (fbInitialized) {
+      const snap = await db.collection('groups').doc(groupCode).collection('posts')
+        .orderBy('ts', 'desc').limit(100).get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+    return (LS.get('posts:' + groupCode) || []).sort((a,b) => b.ts - a.ts);
+  },
+  async addPost(groupCode, post) {
+    if (fbInitialized) {
+      await db.collection('groups').doc(groupCode).collection('posts').doc(post.id).set(post);
+    } else {
+      const posts = LS.get('posts:' + groupCode) || [];
+      posts.unshift(post);
+      LS.set('posts:' + groupCode, posts);
+    }
+  },
+  async updatePost(groupCode, postId, data) {
+    if (fbInitialized) {
+      await db.collection('groups').doc(groupCode).collection('posts').doc(postId).update(data);
+    } else {
+      const posts = LS.get('posts:' + groupCode) || [];
+      const idx = posts.findIndex(p => p.id === postId);
+      if (idx >= 0) { Object.assign(posts[idx], data); LS.set('posts:' + groupCode, posts); }
+    }
+  },
+  async deletePost(groupCode, postId) {
+    if (fbInitialized) {
+      await db.collection('groups').doc(groupCode).collection('posts').doc(postId).delete();
+    } else {
+      let posts = LS.get('posts:' + groupCode) || [];
+      posts = posts.filter(p => p.id !== postId);
+      LS.set('posts:' + groupCode, posts);
+    }
+  },
+  async getMessages(groupCode) {
+    if (fbInitialized) {
+      const snap = await db.collection('groups').doc(groupCode).collection('messages')
+        .orderBy('ts', 'asc').limit(500).get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+    return LS.get('messages:' + groupCode) || [];
+  },
+  async addMessage(groupCode, msg) {
+    if (fbInitialized) {
+      await db.collection('groups').doc(groupCode).collection('messages').doc(msg.id).set(msg);
+    } else {
+      const msgs = LS.get('messages:' + groupCode) || [];
+      msgs.push(msg);
+      LS.set('messages:' + groupCode, msgs);
+    }
+  },
+  async markMessagesRead(groupCode, userId) {
+    // In Firebase: batch update readBy field
+    if (fbInitialized) {
+      const snap = await db.collection('groups').doc(groupCode).collection('messages')
+        .where('authorId', '!=', userId).get();
+      const batch = db.batch();
+      snap.docs.forEach(doc => {
+        const data = doc.data();
+        if (!data.readBy || !data.readBy.includes(userId)) {
+          batch.update(doc.ref, { readBy: firebase.firestore.FieldValue.arrayUnion(userId) });
+        }
+      });
+      await batch.commit();
+    }
+  },
+  async uploadMedia(file) {
+    // 이미지: 압축 후 Base64 (최대 800px, JPEG 60% 품질 → ~100~300KB)
+    if (file.type.startsWith('image/')) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX = 800;
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+          else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    }
+    // 동영상: 썸네일만 추출 (동영상 자체는 용량 문제로 저장 불가)
+    if (file.type.startsWith('video/')) {
+      return new Promise((resolve) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadeddata = () => {
+          video.currentTime = 1;
+        };
+        video.onseeked = () => {
+          const canvas = document.createElement('canvas');
+          const MAX = 800;
+          let w = video.videoWidth, h = video.videoHeight;
+          if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+          else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.6));
+        };
+        video.src = URL.createObjectURL(file);
+      });
+    }
+    // 기타 파일
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+  },
+  // Real-time listeners (Firebase only)
+  onPostsChange(groupCode, callback) {
+    if (!fbInitialized) return () => {};
+    return db.collection('groups').doc(groupCode).collection('posts')
+      .orderBy('ts', 'desc').limit(100)
+      .onSnapshot(snap => { callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))); });
+  },
+  onMessagesChange(groupCode, callback) {
+    if (!fbInitialized) return () => {};
+    return db.collection('groups').doc(groupCode).collection('messages')
+      .orderBy('ts', 'asc').limit(500)
+      .onSnapshot(snap => { callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))); });
+  },
+  onMembersChange(groupCode, callback) {
+    if (!fbInitialized) return () => {};
+    return db.collection('groups').doc(groupCode)
+      .onSnapshot(doc => { callback(doc.exists ? (doc.data().members || []) : []); });
+  }
+};
+
+// ─── Utils ───
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const hashStr = s => { let h=0; for(let i=0;i<s.length;i++) h=((h<<5)-h+s.charCodeAt(i))|0; return Math.abs(h); };
+const timeAgo = ts => {
+  const d=Date.now()-ts;
+  if(d<60000) return '방금 전';
+  if(d<3600000) return Math.floor(d/60000)+'분 전';
+  if(d<86400000) return Math.floor(d/3600000)+'시간 전';
+  return Math.floor(d/86400000)+'일 전';
+};
+
+const avatarColors = ["#7EC8E3","#A8D8EA","#F9C6D0","#C3B1E1","#B5EAD7","#FFD6A5","#FDFFB6","#CAFFBF","#9BF6FF","#FFC6FF"];
+const avatarEmojis = ["🌤","☁️","🌈","🦋","🌸","🍀","⭐","🌊","🎈","🐣","🌻","🍃","💫","🌙","🎨","🐱","🐶","🦊","🐧","🐬"];
+const getAvatarColor = n => avatarColors[hashStr(n) % avatarColors.length];
+const getAvatarEmoji = n => avatarEmojis[hashStr(n) % avatarEmojis.length];
+const getAvatarStyle = n => `background:linear-gradient(135deg,${getAvatarColor(n)},${getAvatarColor(n+'x')})`;
+
+const EMOJIS = ['😀','😂','🥰','😍','😎','🤗','😢','😡','👍','👎','❤️','🔥','💯','✨','🎉','🙏','💪','👏','🤔','😱','🥺','😭','🤣','😊','😇','🥳','😤','😈','👀','💀','🌈','☀️','⭐','🌙','🌸','🍀','🦋','🐱','🐶','❄️'];
+
+// ─── SVG Icons ───
+const SVG = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',
+  heartFill: '<svg viewBox="0 0 24 24" fill="#FF7E9D" stroke="#FF7E9D" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',
+  comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>',
+  image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
+  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
+  emoji: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  checkDouble: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 7 17 2 12"/><polyline points="22 6 11 17"/></svg>',
+};
+
+function icon(name, size=20) { return `<span style="display:inline-flex;width:${size}px;height:${size}px">${SVG[name]||''}</span>`; }
+
+// ─── Avatar helper ───
+function avatar(name, size=40) {
+  return `<div class="member-avatar" style="${getAvatarStyle(name)};width:${size}px;height:${size}px;font-size:${size*0.45}px">${getAvatarEmoji(name)}</div>`;
+}
+
+// ─── App State ───
+const state = {
+  user: null,
+  groupCode: null,
+  tab: 'feed',
+  posts: [],
+  messages: [],
+  members: [],
+  showNewPost: false,
+  showInvite: false,
+  showEmojiPicker: false,
+  viewMedia: null,
+  showComments: {},
+  commentInputs: {},
+  chatInput: '',
+  unsubscribers: [],
+};
+
+// ─── Session Persistence ───
+function saveSession() {
+  LS.set('jackson_sns_session', { user: state.user, groupCode: state.groupCode });
+}
+function loadSession() {
+  return LS.get('jackson_sns_session');
+}
+function clearSession() {
+  LS.remove('jackson_sns_session');
+}
+
+// ─── Toast ───
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// ─── Render Engine ───
+const $app = document.getElementById('app');
+
+function render() {
+  if (!state.user) {
+    renderAuth();
+  } else {
+    renderMain();
+  }
+}
+
+// ══════════════════════════════
+// AUTH SCREEN
+// ══════════════════════════════
+let authMode = 'login';
+let authStep = 1;
+let authError = '';
+let authFields = { username: '', password: '', displayName: '', groupInput: '' };
+let tempUser = null;
+
+function renderAuth() {
+  $app.innerHTML = `
+    <div class="auth-bg">
+      <div class="auth-cloud auth-cloud-1">☁️</div>
+      <div class="auth-cloud auth-cloud-2">⛅</div>
+      <div class="auth-cloud auth-cloud-3">🌤</div>
+      <div class="auth-card">
+        <div class="auth-logo">☁️</div>
+        <h1 class="auth-title">잭슨's SNS</h1>
+        <p class="auth-subtitle">하늘 아래, 우리의 일상을 나누다</p>
+        ${authStep === 1 ? renderAuthStep1() : renderAuthStep2()}
+      </div>
+    </div>
+  `;
+  bindAuthEvents();
+}
+
+function renderAuthStep1() {
+  return `
+    <div class="auth-toggle">
+      <button class="${authMode==='login'?'active':''}" data-mode="login">로그인</button>
+      <button class="${authMode==='signup'?'active':''}" data-mode="signup">회원가입</button>
+    </div>
+    ${authMode === 'signup' ? `<input class="input-field" id="auth-name" placeholder="닉네임" value="${authFields.displayName}">` : ''}
+    <input class="input-field" id="auth-user" placeholder="아이디" value="${authFields.username}" autocapitalize="off" autocorrect="off">
+    <input class="input-field" id="auth-pass" placeholder="비밀번호" type="password" value="${authFields.password}">
+    ${authError ? `<div class="error-msg">${authError}</div>` : ''}
+    <button class="btn-primary" id="auth-submit">${authMode==='login'?'로그인':'회원가입'}</button>
+  `;
+}
+
+function renderAuthStep2() {
+  return `
+    <div class="group-step">
+      <div class="group-step-icon">🔗</div>
+      <h3>그룹 참여하기</h3>
+      <p>초대 코드를 입력하거나,<br>새 그룹을 만들 수 있어요</p>
+      <input class="input-field" id="group-input" placeholder="초대 코드 (없으면 비워두세요)" value="${authFields.groupInput}">
+      <button class="btn-primary" id="group-submit">${authFields.groupInput.trim() ? '그룹 참여' : '새 그룹 만들기'}</button>
+    </div>
+  `;
+}
+
+function bindAuthEvents() {
+  document.querySelectorAll('.auth-toggle button').forEach(btn => {
+    btn.onclick = () => { authMode = btn.dataset.mode; authError = ''; renderAuth(); };
+  });
+  const nameEl = document.getElementById('auth-name');
+  const userEl = document.getElementById('auth-user');
+  const passEl = document.getElementById('auth-pass');
+  const groupEl = document.getElementById('group-input');
+
+  if (nameEl) nameEl.oninput = e => authFields.displayName = e.target.value;
+  if (userEl) userEl.oninput = e => authFields.username = e.target.value;
+  if (passEl) {
+    passEl.oninput = e => authFields.password = e.target.value;
+    passEl.onkeydown = e => { if (e.key === 'Enter') handleAuth(); };
+  }
+  if (groupEl) {
+    groupEl.oninput = e => { authFields.groupInput = e.target.value; renderAuth(); };
+  }
+
+  const submitBtn = document.getElementById('auth-submit');
+  if (submitBtn) submitBtn.onclick = handleAuth;
+
+  const groupBtn = document.getElementById('group-submit');
+  if (groupBtn) groupBtn.onclick = handleJoinGroup;
+}
+
+async function handleAuth() {
+  const { username, password, displayName } = authFields;
+  if (!username.trim() || !password.trim()) { authError = '아이디와 비밀번호를 입력하세요'; renderAuth(); return; }
+  if (authMode === 'signup' && !displayName.trim()) { authError = '닉네임을 입력하세요'; renderAuth(); return; }
+
+  try {
+    const existing = await DataStore.getUser(username);
+    if (authMode === 'signup') {
+      if (existing) { authError = '이미 존재하는 아이디입니다'; renderAuth(); return; }
+      tempUser = { id: uid(), name: displayName.trim(), username: username.toLowerCase() };
+      await DataStore.setUser(username, { ...tempUser, password });
+    } else {
+      if (!existing || existing.password !== password) { authError = '아이디 또는 비밀번호가 틀립니다'; renderAuth(); return; }
+      tempUser = { id: existing.id, name: existing.name, username: existing.username };
+    }
+    authStep = 2; authError = '';
+    renderAuth();
+  } catch(e) {
+    authError = '오류가 발생했습니다. 다시 시도해주세요.'; renderAuth();
+  }
+}
+
+async function handleJoinGroup() {
+  if (!tempUser) return;
+  let gc = authFields.groupInput.trim();
+  if (!gc) gc = 'sky-' + uid();
+  
+  state.user = tempUser;
+  state.groupCode = gc;
+  saveSession();
+
+  await DataStore.addMember(gc, { id: tempUser.id, name: tempUser.name, joinedAt: Date.now() });
+  
+  startRealtimeListeners();
+  render();
+}
+
+// ══════════════════════════════
+// MAIN APP
+// ══════════════════════════════
+function renderMain() {
+  $app.innerHTML = `
+    <header class="header">
+      <div class="header-logo"><span>☁️</span> 잭슨's SNS</div>
+      <div class="header-actions">
+        <button class="header-btn" id="btn-invite">${icon('link',22)}</button>
+        <button class="header-btn" id="btn-logout">${icon('logout',20)}</button>
+      </div>
+    </header>
+    <div class="main-content" id="main-content"></div>
+    <nav class="tab-bar">
+      <button class="tab-btn ${state.tab==='feed'?'active':''}" data-tab="feed">${icon('home',24)}<span class="tab-label">피드</span></button>
+      <button class="tab-btn ${state.tab==='chat'?'active':''}" data-tab="chat" style="position:relative">${icon('chat',24)}<span class="tab-label">채팅</span></button>
+      <div class="fab-wrap"><button class="fab" id="btn-new-post">${icon('plus',26)}</button></div>
+      <button class="tab-btn" id="btn-invite-tab">${icon('people',24)}<span class="tab-label">멤버</span></button>
+      <button class="tab-btn ${state.tab==='profile'?'active':''}" data-tab="profile">${icon('user',24)}<span class="tab-label">프로필</span></button>
+    </nav>
+    ${state.showNewPost ? renderNewPostModal() : ''}
+    ${state.showInvite ? renderInviteModal() : ''}
+    ${state.viewMedia ? renderMediaViewer() : ''}
+  `;
+
+  // Render content
+  const mc = document.getElementById('main-content');
+  if (state.tab === 'feed') renderFeed(mc);
+  else if (state.tab === 'chat') renderChat(mc);
+  else if (state.tab === 'profile') renderProfile(mc);
+
+  bindMainEvents();
+}
+
+function bindMainEvents() {
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.onclick = () => { state.tab = btn.dataset.tab; renderMainContent(); };
+  });
+  const btnNewPost = document.getElementById('btn-new-post');
+  if (btnNewPost) btnNewPost.onclick = () => { state.showNewPost = true; render(); };
+  const btnInvite = document.getElementById('btn-invite');
+  if (btnInvite) btnInvite.onclick = () => { state.showInvite = true; render(); };
+  const btnInviteTab = document.getElementById('btn-invite-tab');
+  if (btnInviteTab) btnInviteTab.onclick = () => { state.showInvite = true; render(); };
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) btnLogout.onclick = logout;
+
+  bindModalEvents();
+}
+
+function renderMainContent() {
+  // Update tab active states
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === state.tab);
+  });
+  const mc = document.getElementById('main-content');
+  if (state.tab === 'feed') renderFeed(mc);
+  else if (state.tab === 'chat') renderChat(mc);
+  else if (state.tab === 'profile') renderProfile(mc);
+}
+
+// ══════════════════════════════
+// FEED
+// ══════════════════════════════
+function renderFeed(container) {
+  const visible = state.posts.filter(p => !p.isPrivate || p.authorId === state.user.id);
+  
+  container.innerHTML = `
+    <div class="member-bar">${state.members.map(m => `
+      <div class="member-chip">
+        ${avatar(m.name, 52)}
+        <span class="member-chip-name">${m.name}</span>
+      </div>`).join('')}
+    </div>
+    ${visible.length === 0 ? `
+      <div class="empty-state">
+        <div class="icon">🌤</div>
+        <h3>아직 게시물이 없어요</h3>
+        <p>첫 번째 게시물을 올려보세요!</p>
+      </div>` : visible.map(p => renderPostCard(p)).join('')}
+    <div style="height:20px"></div>
+  `;
+  bindFeedEvents();
+}
+
+function renderPostCard(post) {
+  const isLiked = (post.likes || []).includes(state.user.id);
+  const isMine = post.authorId === state.user.id;
+  const showCmts = state.showComments[post.id];
+  const comments = post.comments || [];
+  const isVideo = post.mediaType === 'video';
+
+  return `
+    <div class="post-card" data-post-id="${post.id}">
+      <div class="post-header">
+        <div class="post-avatar" style="${getAvatarStyle(post.author)}">${getAvatarEmoji(post.author)}</div>
+        <div class="post-meta">
+          <span class="post-author">${post.author}</span>
+          <span class="post-time">${timeAgo(post.ts)}
+            ${post.isPrivate
+              ? `<span class="post-badge private">${icon('lock',12)} 비공개</span>`
+              : `<span class="post-badge public">${icon('globe',12)} 공개</span>`}
+          </span>
+        </div>
+        ${isMine ? `<button class="post-delete" data-delete="${post.id}">${icon('trash',16)}</button>` : ''}
+      </div>
+      ${post.text ? `<p class="post-text">${escapeHtml(post.text)}</p>` : ''}
+      ${post.mediaUrl ? `<div class="post-media">
+        ${isVideo
+          ? `<video src="${post.mediaUrl}" controls playsinline preload="metadata" style="cursor:pointer"></video>`
+          : `<img src="${post.mediaUrl}" alt="" loading="lazy" style="cursor:pointer" data-view-media="${post.mediaUrl}">`}
+      </div>` : ''}
+      <div class="post-actions">
+        <button class="action-btn ${isLiked?'liked':''}" data-like="${post.id}">
+          ${isLiked ? icon('heartFill',20) : icon('heart',20)}
+          <span>${(post.likes||[]).length || ''}</span>
+        </button>
+        <button class="action-btn" data-toggle-comments="${post.id}">
+          ${icon('comment',18)}
+          <span>${comments.length || ''}</span>
+        </button>
+      </div>
+      ${showCmts ? `
+        <div class="comments-section">
+          ${comments.map(c => `
+            <div class="comment-item">
+              <div class="comment-avatar" style="${getAvatarStyle(c.author)}">${getAvatarEmoji(c.author)}</div>
+              <div class="comment-bubble">
+                <span class="comment-author">${c.author}</span>
+                <span class="comment-text">${escapeHtml(c.text)}</span>
+              </div>
+            </div>`).join('')}
+          <div class="comment-input-row">
+            <input class="comment-input" placeholder="댓글 작성..." data-comment-input="${post.id}" value="${state.commentInputs[post.id]||''}">
+            <button class="comment-send" data-comment-send="${post.id}">${icon('send',16)}</button>
+          </div>
+        </div>` : ''}
+    </div>
+  `;
+}
+
+function bindFeedEvents() {
+  document.querySelectorAll('[data-like]').forEach(btn => {
+    btn.onclick = () => toggleLike(btn.dataset.like);
+  });
+  document.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.onclick = () => deletePost(btn.dataset.delete);
+  });
+  document.querySelectorAll('[data-toggle-comments]').forEach(btn => {
+    btn.onclick = () => {
+      state.showComments[btn.dataset.toggleComments] = !state.showComments[btn.dataset.toggleComments];
+      renderMainContent();
+    };
+  });
+  document.querySelectorAll('[data-comment-input]').forEach(inp => {
+    inp.oninput = e => state.commentInputs[inp.dataset.commentInput] = e.target.value;
+    inp.onkeydown = e => { if (e.key === 'Enter') addComment(inp.dataset.commentInput); };
+  });
+  document.querySelectorAll('[data-comment-send]').forEach(btn => {
+    btn.onclick = () => addComment(btn.dataset.commentSend);
+  });
+  document.querySelectorAll('[data-view-media]').forEach(img => {
+    img.onclick = () => { state.viewMedia = img.dataset.viewMedia; render(); };
+  });
+}
+
+async function toggleLike(postId) {
+  const post = state.posts.find(p => p.id === postId);
+  if (!post) return;
+  const likes = post.likes || [];
+  const idx = likes.indexOf(state.user.id);
+  if (idx >= 0) likes.splice(idx, 1); else likes.push(state.user.id);
+  post.likes = likes;
+  renderMainContent();
+  await DataStore.updatePost(state.groupCode, postId, { likes });
+}
+
+async function addComment(postId) {
+  const text = (state.commentInputs[postId] || '').trim();
+  if (!text) return;
+  const post = state.posts.find(p => p.id === postId);
+  if (!post) return;
+  const comments = post.comments || [];
+  comments.push({ id: uid(), author: state.user.name, authorId: state.user.id, text, ts: Date.now() });
+  post.comments = comments;
+  state.commentInputs[postId] = '';
+  renderMainContent();
+  await DataStore.updatePost(state.groupCode, postId, { comments });
+}
+
+async function deletePost(postId) {
+  if (!confirm('게시물을 삭제하시겠습니까?')) return;
+  state.posts = state.posts.filter(p => p.id !== postId);
+  renderMainContent();
+  await DataStore.deletePost(state.groupCode, postId);
+}
+
+// ══════════════════════════════
+// CHAT
+// ══════════════════════════════
+function renderChat(container) {
+  container.innerHTML = `
+    <div class="chat-container">
+      <div class="chat-header">
+        <span class="chat-title">💬 오픈 채팅</span>
+        <span class="chat-count">${state.members.length}명 참여중</span>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        ${state.messages.length === 0 ? `
+          <div class="chat-empty">
+            <div style="font-size:40px;margin-bottom:8px">💬</div>
+            <div>대화를 시작해보세요!</div>
+          </div>` : state.messages.map((msg, i) => renderMessage(msg, i)).join('')}
+        <div id="chat-bottom"></div>
+      </div>
+      <div style="position:relative">
+        ${state.showEmojiPicker ? renderEmojiPicker() : ''}
+        <div class="chat-input-bar">
+          <div class="chat-extras">
+            <button id="btn-chat-emoji">${icon('emoji',22)}</button>
+            <label id="btn-chat-image" style="display:flex;cursor:pointer;padding:8px;color:var(--sky-500)">
+              ${icon('image',22)}
+              <input type="file" accept="image/*" style="display:none" id="chat-file-input">
+            </label>
+          </div>
+          <input class="chat-input" id="chat-input" placeholder="메시지 입력..." value="${escapeAttr(state.chatInput)}">
+          <button class="chat-send" id="btn-chat-send">${icon('send',20)}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Scroll to bottom
+  setTimeout(() => {
+    const el = document.getElementById('chat-bottom');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 50);
+
+  // Mark messages as read
+  DataStore.markMessagesRead(state.groupCode, state.user.id);
+
+  bindChatEvents();
+}
+
+function renderMessage(msg, index) {
+  const isMine = msg.authorId === state.user.id;
+  const showAvatar = index === 0 || state.messages[index-1]?.authorId !== msg.authorId;
+  const readCount = (msg.readBy || []).filter(id => id !== msg.authorId).length;
+  const totalOthers = state.members.length - 1;
+  const allRead = readCount >= totalOthers && totalOthers > 0;
+
+  return `
+    <div class="msg-row ${isMine ? 'mine' : 'other'}">
+      ${!isMine && showAvatar ? avatar(msg.author, 32) : (!isMine ? '<div style="width:32px"></div>' : '')}
+      <div class="msg-content">
+        ${!isMine && showAvatar ? `<div class="msg-author">${msg.author}</div>` : ''}
+        <div class="msg-bubble">
+          ${msg.text ? escapeHtml(msg.text) : ''}
+          ${msg.mediaUrl ? (msg.mediaType === 'video'
+            ? `<video src="${msg.mediaUrl}" controls playsinline preload="metadata" style="max-width:200px;border-radius:12px;margin-top:4px"></video>`
+            : `<img src="${msg.mediaUrl}" style="max-width:200px;border-radius:12px;margin-top:4px;cursor:pointer" data-view-media="${msg.mediaUrl}">`)
+          : ''}
+        </div>
+        <div class="msg-time" style="text-align:${isMine?'right':'left'}">
+          ${isMine ? `<span class="msg-read" style="color:${allRead?'var(--sky-400)':'var(--text-muted)'}">${allRead ? icon('checkDouble',12) : icon('check',12)}</span>` : ''}
+          ${timeAgo(msg.ts)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderEmojiPicker() {
+  return `
+    <div class="emoji-picker" id="emoji-picker">
+      <div class="emoji-grid">${EMOJIS.map(e => `<button class="emoji-btn" data-emoji="${e}">${e}</button>`).join('')}</div>
+    </div>
+  `;
+}
+
+function bindChatEvents() {
+  const input = document.getElementById('chat-input');
+  if (input) {
+    input.oninput = e => state.chatInput = e.target.value;
+    input.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+    input.focus();
+  }
+  const sendBtn = document.getElementById('btn-chat-send');
+  if (sendBtn) sendBtn.onclick = sendMessage;
+
+  const emojiBtn = document.getElementById('btn-chat-emoji');
+  if (emojiBtn) emojiBtn.onclick = () => { state.showEmojiPicker = !state.showEmojiPicker; renderMainContent(); };
+
+  document.querySelectorAll('[data-emoji]').forEach(btn => {
+    btn.onclick = () => {
+      state.chatInput += btn.dataset.emoji;
+      state.showEmojiPicker = false;
+      renderMainContent();
+    };
+  });
+
+  const fileInput = document.getElementById('chat-file-input');
+  if (fileInput) fileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    showToast('업로드 중...');
+    const url = await DataStore.uploadMedia(file);
+    const isVideo = file.type.startsWith('video/');
+    const msg = {
+      id: uid(), author: state.user.name, authorId: state.user.id,
+      text: '', mediaUrl: url, mediaType: isVideo ? 'video' : 'image',
+      ts: Date.now(), readBy: [state.user.id]
+    };
+    state.messages.push(msg);
+    renderMainContent();
+    await DataStore.addMessage(state.groupCode, msg);
+  };
+
+  // View media in chat
+  document.querySelectorAll('.msg-bubble [data-view-media]').forEach(img => {
+    img.onclick = () => { state.viewMedia = img.dataset.viewMedia; render(); };
+  });
+}
+
+async function sendMessage() {
+  const text = state.chatInput.trim();
+  if (!text) return;
+  const msg = {
+    id: uid(), author: state.user.name, authorId: state.user.id,
+    text, ts: Date.now(), readBy: [state.user.id]
+  };
+  state.chatInput = '';
+  state.messages.push(msg);
+  state.showEmojiPicker = false;
+  renderMainContent();
+  await DataStore.addMessage(state.groupCode, msg);
+}
+
+// ══════════════════════════════
+// PROFILE
+// ══════════════════════════════
+function renderProfile(container) {
+  const myPosts = state.posts.filter(p => p.authorId === state.user.id);
+  const totalLikes = myPosts.reduce((s, p) => s + (p.likes || []).length, 0);
+
+  container.innerHTML = `
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-avatar" style="${getAvatarStyle(state.user.name)}">${getAvatarEmoji(state.user.name)}</div>
+        <h2 class="profile-name">${state.user.name}</h2>
+        <span class="profile-username">@${state.user.username}</span>
+        <div class="profile-stats">
+          <div class="stat-item"><span class="stat-num">${myPosts.length}</span><span class="stat-label">게시물</span></div>
+          <div class="stat-item"><span class="stat-num">${state.members.length}</span><span class="stat-label">멤버</span></div>
+          <div class="stat-item"><span class="stat-num">${totalLikes}</span><span class="stat-label">좋아요</span></div>
+        </div>
+      </div>
+      <div class="profile-grid">
+        ${myPosts.length === 0 ? `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">📷 아직 게시물이 없어요</div>` :
+          myPosts.map(p => `
+            <div class="grid-item">
+              ${p.mediaUrl
+                ? (p.mediaType === 'video'
+                  ? `<video src="${p.mediaUrl}" preload="metadata"></video><div class="grid-play">▶</div>`
+                  : `<img src="${p.mediaUrl}" alt="" loading="lazy">`)
+                : `<div class="grid-text">${escapeHtml((p.text||'').slice(0,60))}</div>`}
+              ${p.isPrivate ? `<div class="grid-private">${icon('lock',14)}</div>` : ''}
+            </div>`).join('')}
+      </div>
+      <button class="btn-logout" id="btn-profile-logout">${icon('logout',18)} 로그아웃</button>
+    </div>
+  `;
+
+  const btn = document.getElementById('btn-profile-logout');
+  if (btn) btn.onclick = logout;
+}
+
+// ══════════════════════════════
+// MODALS
+// ══════════════════════════════
+function renderNewPostModal() {
+  return `
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal" id="new-post-modal">
+        <div class="modal-header">
+          <button class="modal-close" id="modal-close">${icon('back',24)}</button>
+          <span class="modal-title">새 게시물</span>
+          <button class="modal-post-btn" id="modal-submit">게시</button>
+        </div>
+        <textarea class="post-textarea" id="post-text" placeholder="무슨 생각을 하고 있나요? ✨"></textarea>
+
+```
+    <div id="media-preview"></div>
+    <div class="modal-footer">
+      <label class="media-pick-btn">
+        ${icon('image',20)} 사진
+        <input type="file" accept="image/*" style="display:none" id="post-media-input">
+      </label>
+      <button class="privacy-toggle public" id="privacy-toggle">
+        ${icon('globe',14)} <span>공개</span>
+      </button>
+    </div>
+  </div>
+</div>
+```
+
+`;
+}
+
+function renderInviteModal() {
+return `<div class="modal-overlay" id="invite-overlay"> <div class="modal"> <div class="modal-header"> <button class="modal-close" id="invite-close">${icon('back',24)}</button> <span class="modal-title">그룹 초대</span> <div style="width:48px"></div> </div> <div class="invite-content"> <div class="icon">🔗</div> <p>아래 코드를 친구에게 공유하세요.<br>회원가입 시 이 코드를 입력하면<br>같은 그룹에 참여할 수 있어요!</p> <div class="code-box"> <code class="code-text">${state.groupCode}</code> <button class="btn-copy" id="btn-copy">${icon('copy',14)} 복사</button> </div> <div style="margin-top:20px"> <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px">현재 멤버 (${state.members.length}명)</p> <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"> ${state.members.map(m =>`<div style="display:flex;align-items:center;gap:6px;background:var(--sky-100);padding:5px 12px 5px 5px;border-radius:20px">
+${avatar(m.name, 26)} <span style="font-size:13px;font-weight:600;color:var(--sky-700)">${m.name}</span>
+</div>`).join('')} </div> </div> </div> </div> </div> `;
+}
+
+function renderMediaViewer() {
+const url = state.viewMedia;
+const isVideo = url.match(/.(mp4|webm|mov)/i) || url.includes(‘video’);
+return `<div class="media-viewer" id="media-viewer"> ${isVideo ?`<video src="${url}" controls autoplay playsinline style="max-width:95%;max-height:90vh"></video>`:`<img src="${url}" alt="">`} <button class="media-viewer-close" id="media-viewer-close">✕</button> </div> `;
+}
+
+let postMediaFile = null;
+let postIsPrivate = false;
+
+function bindModalEvents() {
+// New post modal
+const overlay = document.getElementById(‘modal-overlay’);
+if (overlay) {
+overlay.onclick = e => { if (e.target === overlay) closeNewPostModal(); };
+document.getElementById(‘modal-close’).onclick = closeNewPostModal;
+document.getElementById(‘modal-submit’).onclick = submitPost;
+
+```
+const textarea = document.getElementById('post-text');
+if (textarea) setTimeout(() => textarea.focus(), 100);
+
+const mediaInput = document.getElementById('post-media-input');
+if (mediaInput) mediaInput.onchange = e => {
+  postMediaFile = e.target.files[0];
+  if (postMediaFile) {
+    const preview = document.getElementById('media-preview');
+    const url = URL.createObjectURL(postMediaFile);
+    const isVideo = postMediaFile.type.startsWith('video/');
+    preview.innerHTML = `<div class="preview-wrap">
+      ${isVideo ? `<video src="${url}" controls playsinline></video>` : `<img src="${url}" alt="">`}
+      <button class="preview-remove" id="remove-preview">✕</button>
+    </div>`;
+    document.getElementById('remove-preview').onclick = () => {
+      postMediaFile = null;
+      preview.innerHTML = '';
+    };
+  }
+};
+
+const privacyBtn = document.getElementById('privacy-toggle');
+if (privacyBtn) privacyBtn.onclick = () => {
+  postIsPrivate = !postIsPrivate;
+  privacyBtn.className = 'privacy-toggle ' + (postIsPrivate ? 'private' : 'public');
+  privacyBtn.innerHTML = postIsPrivate
+    ? `${icon('lock',14)} <span>비공개</span>`
+    : `${icon('globe',14)} <span>공개</span>`;
+};
+```
+
+}
+
+// Invite modal
+const inviteOverlay = document.getElementById(‘invite-overlay’);
+if (inviteOverlay) {
+inviteOverlay.onclick = e => { if (e.target === inviteOverlay) { state.showInvite = false; render(); } };
+document.getElementById(‘invite-close’).onclick = () => { state.showInvite = false; render(); };
+const copyBtn = document.getElementById(‘btn-copy’);
+if (copyBtn) copyBtn.onclick = () => {
+navigator.clipboard?.writeText(state.groupCode).then(() => {
+copyBtn.innerHTML = ‘✅ 복사됨’;
+setTimeout(() => { copyBtn.innerHTML = `${icon('copy',14)} 복사`; }, 2000);
+}).catch(() => {
+// Fallback
+const ta = document.createElement(‘textarea’);
+ta.value = state.groupCode;
+document.body.appendChild(ta);
+ta.select();
+document.execCommand(‘copy’);
+document.body.removeChild(ta);
+copyBtn.innerHTML = ‘✅ 복사됨’;
+setTimeout(() => { copyBtn.innerHTML = `${icon('copy',14)} 복사`; }, 2000);
+});
+};
+}
+
+// Media viewer
+const mediaViewer = document.getElementById(‘media-viewer’);
+if (mediaViewer) {
+mediaViewer.onclick = e => { if (e.target === mediaViewer) { state.viewMedia = null; render(); } };
+document.getElementById(‘media-viewer-close’).onclick = () => { state.viewMedia = null; render(); };
+}
+}
+
+function closeNewPostModal() {
+state.showNewPost = false;
+postMediaFile = null;
+postIsPrivate = false;
+render();
+}
+
+async function submitPost() {
+const text = document.getElementById(‘post-text’)?.value?.trim() || ‘’;
+if (!text && !postMediaFile) { showToast(‘내용 또는 미디어를 추가하세요’); return; }
+
+const btn = document.getElementById(‘modal-submit’);
+btn.disabled = true;
+btn.textContent = ‘게시중…’;
+
+let mediaUrl = ‘’;
+let mediaType = ‘’;
+if (postMediaFile) {
+showToast(‘미디어 업로드 중…’);
+mediaUrl = await DataStore.uploadMedia(postMediaFile);
+mediaType = postMediaFile.type.startsWith(‘video/’) ? ‘video’ : ‘image’;
+}
+
+const post = {
+id: uid(), author: state.user.name, authorId: state.user.id,
+text, mediaUrl, mediaType, isPrivate: postIsPrivate,
+likes: [], comments: [], ts: Date.now()
+};
+
+state.posts.unshift(post);
+closeNewPostModal();
+showToast(‘게시물이 올라갔어요! ✨’);
+
+await DataStore.addPost(state.groupCode, post);
+}
+
+// ─── Logout ───
+function logout() {
+state.unsubscribers.forEach(fn => fn());
+state.unsubscribers = [];
+state.user = null;
+state.groupCode = null;
+state.posts = [];
+state.messages = [];
+state.members = [];
+state.tab = ‘feed’;
+authStep = 1;
+authError = ‘’;
+authFields = { username: ‘’, password: ‘’, displayName: ‘’, groupInput: ‘’ };
+clearSession();
+render();
+}
+
+// ─── Realtime Listeners ───
+function startRealtimeListeners() {
+state.unsubscribers.forEach(fn => fn());
+state.unsubscribers = [];
+
+if (fbInitialized) {
+// Firebase real-time
+state.unsubscribers.push(
+DataStore.onPostsChange(state.groupCode, posts => { state.posts = posts; if (state.tab === ‘feed’) renderMainContent(); }),
+DataStore.onMessagesChange(state.groupCode, msgs => { state.messages = msgs; if (state.tab === ‘chat’) renderMainContent(); }),
+DataStore.onMembersChange(state.groupCode, mems => { state.members = mems; })
+);
+} else {
+// Polling fallback
+const poll = async () => {
+state.posts = await DataStore.getPosts(state.groupCode);
+state.messages = await DataStore.getMessages(state.groupCode);
+state.members = await DataStore.getMembers(state.groupCode);
+};
+poll();
+const interval = setInterval(poll, 3000);
+state.unsubscribers.push(() => clearInterval(interval));
+}
+}
+
+// ─── HTML Escape ───
+function escapeHtml(str) {
+if (!str) return ‘’;
+return str.replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’);
+}
+function escapeAttr(str) {
+if (!str) return ‘’;
+return str.replace(/”/g,’"’).replace(/’/g,’'’);
+}
+
+// ─── INIT ───
+async function init() {
+// Show loading
+$app.innerHTML = `<div class="loading-screen"> <div class="loading-logo">☁️</div> <div class="loading-title">잭슨's SNS</div> <div class="loading-spinner"></div> </div>`;
+
+// Check session
+const session = loadSession();
+if (session && session.user && session.groupCode) {
+state.user = session.user;
+state.groupCode = session.groupCode;
+
+```
+// Load initial data
+state.members = await DataStore.getMembers(state.groupCode);
+state.posts = await DataStore.getPosts(state.groupCode);
+state.messages = await DataStore.getMessages(state.groupCode);
+
+startRealtimeListeners();
+```
+
+}
+
+setTimeout(render, 600);
+}
+
+init();
+</script>
+
+</body>
+</html>
