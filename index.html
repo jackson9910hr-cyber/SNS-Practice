@@ -1491,6 +1491,7 @@ async function init() {
 // Show loading
 $app.innerHTML = `<div class="loading-screen"> <div class="loading-logo">☁️</div> <div class="loading-title">잭슨's SNS</div> <div class="loading-spinner"></div> </div>`;
 
+try {
 // Check session
 const session = loadSession();
 if (session && session.user && session.groupCode) {
@@ -1498,14 +1499,20 @@ state.user = session.user;
 state.groupCode = session.groupCode;
 
 ```
-// Load initial data
-state.members = await DataStore.getMembers(state.groupCode);
-state.posts = await DataStore.getPosts(state.groupCode);
-state.messages = await DataStore.getMessages(state.groupCode);
-
-startRealtimeListeners();
+  // Load initial data
+  try {
+    state.members = await DataStore.getMembers(state.groupCode);
+    state.posts = await DataStore.getPosts(state.groupCode);
+    state.messages = await DataStore.getMessages(state.groupCode);
+    startRealtimeListeners();
+  } catch(e) {
+    console.error('Data load error:', e);
+  }
+}
 ```
 
+} catch(e) {
+console.error(‘Init error:’, e);
 }
 
 setTimeout(render, 600);
