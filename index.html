@@ -9,6 +9,8 @@
 <title>잭슨's SNS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{--s1:#E1F1FC;--s2:#C5E4F9;--s4:#6BBDE8;--s5:#4AA8D8;--s6:#3490C0;--s7:#2A7099;--ac:#FF7E9D;--acs:rgba(255,126,157,0.12);--tp:#1E3A4C;--ts:#5A8296;--tm:#94B3C2;--cd:rgba(255,255,255,0.85)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -429,19 +431,7 @@ Promise.all([DS.getMembers(S.gc).catch(function(){return[]}),DS.getPosts(S.gc).c
 }
 
 // Dynamic SDK loading
-(function(){
-var s1=document.createElement(‘script’);
-s1.src=‘https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js’;
-s1.onload=function(){
-var s2=document.createElement(‘script’);
-s2.src=‘https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js’;
-s2.onload=function(){startApp()};
-s2.onerror=function(){startApp()};
-document.head.appendChild(s2);
-};
-s1.onerror=function(){startApp()};
-document.head.appendChild(s1);
-})();
+startApp();
 </script>
 
 </body>
