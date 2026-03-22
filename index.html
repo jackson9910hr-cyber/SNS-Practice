@@ -423,11 +423,15 @@ poll();var iv=setInterval(poll,3000);S.unsubs.push(function(){clearInterval(iv)}
 
 function startApp(){
 initFB();
+var rendered=false;
+function doRender(){if(!rendered){rendered=true;R()}}
+// Force render after 3 seconds no matter what
+setTimeout(doRender,3000);
 var ss=loadSess();
 if(ss&&ss.user&&ss.gc){
 S.user=ss.user;S.gc=ss.gc;
-Promise.all([DS.getMembers(S.gc).catch(function(){return[]}),DS.getPosts(S.gc).catch(function(){return[]}),DS.getMsgs(S.gc).catch(function(){return[]})]).then(function(r){S.mems=r[0];S.posts=r[1];S.msgs=r[2];startL();R()}).catch(function(){R()});
-}else{R()}
+Promise.all([DS.getMembers(S.gc).catch(function(){return[]}),DS.getPosts(S.gc).catch(function(){return[]}),DS.getMsgs(S.gc).catch(function(){return[]})]).then(function(r){S.mems=r[0];S.posts=r[1];S.msgs=r[2];startL();doRender()}).catch(function(){doRender()});
+}else{doRender()}
 }
 
 // Dynamic SDK loading
