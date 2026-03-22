@@ -3,439 +3,450 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#D6EEFB">
 <title>잭슨's SNS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-:root{--s1:#E1F1FC;--s2:#C5E4F9;--s4:#6BBDE8;--s5:#4AA8D8;--s6:#3490C0;--s7:#2A7099;--ac:#FF7E9D;--acs:rgba(255,126,157,0.12);--tp:#1E3A4C;--ts:#5A8296;--tm:#94B3C2;--cd:rgba(255,255,255,0.85)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#D6EEFB 0%,#E8F4FC 25%,#F5F0EB 55%,#FFF8F2 100%);color:var(--tp);overflow:hidden}
-#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:linear-gradient(170deg,#D6EEFB,#E8F4FC 25%,#F5F0EB 55%,#FFF8F2);color:#1E3A4C;overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-.auth-wrap{height:100%;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:auto}
-.auth-cloud{position:absolute;opacity:0.2;animation:float 8s ease-in-out infinite;pointer-events:none}
-.auth-card{background:var(–cd);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:28px;padding:36px 28px 32px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(106,189,232,0.15);text-align:center;z-index:1;border:1px solid rgba(255,255,255,0.6);animation:fadeUp 0.5s ease}
+.auth-wrap{height:100%;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+.auth-card{background:rgba(255,255,255,0.85);border-radius:28px;padding:36px 28px 32px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 40px rgba(106,189,232,0.15);border:1px solid rgba(255,255,255,0.6);animation:fadeUp .5s ease}
 .auth-logo{font-size:52px;margin-bottom:4px}
-.auth-title{font-size:26px;font-weight:900;color:var(–s7)}
-.auth-sub{font-size:13px;color:var(–tm);margin:4px 0 24px}
-.atabs{display:flex;background:var(–s1);border-radius:14px;padding:3px;margin-bottom:20px}
-.atabs button{flex:1;padding:10px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:var(–tm);font-family:inherit}
-.atabs button.on{background:#fff;color:var(–s6);box-shadow:0 2px 10px rgba(106,189,232,0.2)}
-.inp{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(–s2);font-size:15px;outline:none;margin-bottom:12px;background:rgba(255,255,255,0.7);color:var(–tp);font-family:inherit}
-.inp:focus{border-color:var(–s4)}
-.err{color:var(–ac);font-size:13px;font-weight:600;margin-bottom:12px;background:var(–acs);border-radius:10px;padding:8px 12px}
-.btn1{width:100%;padding:15px;border-radius:16px;border:none;background:linear-gradient(135deg,var(–s4),var(–s6));color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(74,168,216,0.35);font-family:inherit;margin-top:4px}
+.auth-title{font-size:26px;font-weight:900;color:#2A7099}
+.auth-sub{font-size:13px;color:#94B3C2;margin:4px 0 24px}
+.tabs-row{display:flex;background:#E1F1FC;border-radius:14px;padding:3px;margin-bottom:20px}
+.tabs-row button{flex:1;padding:10px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:#94B3C2;font-family:inherit}
+.tabs-row button.on{background:#fff;color:#3490C0;box-shadow:0 2px 10px rgba(106,189,232,0.2)}
+.field{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid #C5E4F9;font-size:15px;outline:none;margin-bottom:12px;background:rgba(255,255,255,0.7);color:#1E3A4C;font-family:inherit}
+.field:focus{border-color:#6BBDE8}
+.errmsg{color:#FF7E9D;font-size:13px;font-weight:600;margin-bottom:12px;background:rgba(255,126,157,0.12);border-radius:10px;padding:8px 12px}
+.btn-main{width:100%;padding:15px;border-radius:16px;border:none;background:linear-gradient(135deg,#6BBDE8,#3490C0);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(74,168,216,0.35);font-family:inherit;margin-top:4px}
 
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(214,238,251,0.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(106,189,232,0.15);flex-shrink:0;z-index:50}
-.hdr-logo{font-size:19px;font-weight:800;color:var(–s6)}
-.hdr-btn{background:none;border:none;cursor:pointer;padding:8px;font-size:20px;border-radius:12px}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(214,238,251,0.92);border-bottom:1px solid rgba(106,189,232,0.15);flex-shrink:0;z-index:50}
+.hdr-logo{font-size:18px;font-weight:800;color:#3490C0}
+.hdr button{background:none;border:none;cursor:pointer;padding:8px;font-size:20px;border-radius:12px}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-
-.membar{display:flex;gap:14px;padding:14px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.membar{display:flex;gap:12px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .membar::-webkit-scrollbar{display:none}
-.memchip{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
-.memav{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 2px 10px rgba(106,189,232,0.25);border:2.5px solid #fff}
-.memname{font-size:11px;color:var(–ts);font-weight:600;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.mc{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.mc-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid #fff;box-shadow:0 2px 8px rgba(106,189,232,0.2)}
+.mc-nm{font-size:10px;color:#5A8296;font-weight:600;margin-top:3px;max-width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.post{background:var(–cd);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:22px;margin:10px 12px;box-shadow:0 2px 20px rgba(106,189,232,0.1);overflow:hidden;border:1px solid rgba(255,255,255,0.5);animation:fadeUp 0.3s ease}
-.post-hd{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
-.post-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.post-meta{flex:1}
-.post-nm{font-weight:700;font-size:14px;color:var(–s7)}
-.post-tm{font-size:11px;color:var(–tm)}
-.post-del{background:none;border:none;cursor:pointer;padding:6px;font-size:16px;opacity:0.5}
-.post-txt{padding:4px 16px 12px;font-size:15px;line-height:1.65;word-break:break-word;white-space:pre-wrap}
-.post-img{padding:0 12px 10px}
-.post-img img{width:100%;border-radius:16px;max-height:420px;object-fit:cover;background:var(–s1)}
-.post-acts{display:flex;gap:20px;padding:8px 16px 12px;border-top:1px solid rgba(106,189,232,0.08)}
-.abtn{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(–tm);font-size:14px;font-weight:600;padding:4px 0;font-family:inherit}
-.abtn.liked{color:var(–ac)}
+.card{background:rgba(255,255,255,0.85);border-radius:20px;margin:8px 12px;box-shadow:0 2px 16px rgba(106,189,232,0.08);overflow:hidden;border:1px solid rgba(255,255,255,0.5)}
+.card-hd{display:flex;align-items:center;gap:10px;padding:12px 14px 6px}
+.card-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.card-nm{font-weight:700;font-size:14px;color:#2A7099}
+.card-tm{font-size:11px;color:#94B3C2}
+.card-del{background:none;border:none;cursor:pointer;padding:4px;font-size:14px;opacity:.5}
+.card-txt{padding:2px 14px 10px;font-size:15px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
+.card-img{padding:0 10px 8px}
+.card-img img{width:100%;border-radius:14px;max-height:400px;object-fit:cover}
+.card-acts{display:flex;gap:16px;padding:6px 14px 10px;border-top:1px solid rgba(106,189,232,0.06)}
+.act{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;color:#94B3C2;font-size:13px;font-weight:600;font-family:inherit;padding:4px 0}
+.act.on{color:#FF7E9D}
 
-.cmt-sec{padding:0 16px 14px;border-top:1px solid rgba(106,189,232,0.06)}
-.cmt-item{display:flex;gap:8px;margin-top:10px;align-items:flex-start}
-.cmt-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.cmt-bub{background:rgba(106,189,232,0.07);border-radius:14px;padding:7px 12px;flex:1}
-.cmt-name{font-weight:700;font-size:12px;color:var(–s6);margin-right:6px}
-.cmt-txt{font-size:13px;line-height:1.45}
-.cmt-row{display:flex;gap:8px;margin-top:10px}
-.cmt-inp{flex:1;border:1.5px solid var(–s2);border-radius:20px;padding:9px 14px;font-size:13px;outline:none;background:rgba(255,255,255,0.7);font-family:inherit}
-.cmt-send{background:linear-gradient(135deg,var(–s4),var(–s5));border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;font-size:14px}
+.cmt-sec{padding:0 14px 10px;border-top:1px solid rgba(106,189,232,0.04)}
+.cmt-i{display:flex;gap:6px;margin-top:8px;align-items:flex-start}
+.cmt-a{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.cmt-b{background:rgba(106,189,232,0.06);border-radius:12px;padding:6px 10px;flex:1;font-size:13px;line-height:1.4}
+.cmt-b b{color:#3490C0;font-size:12px;margin-right:4px}
+.cmt-r{display:flex;gap:6px;margin-top:8px}
+.cmt-in{flex:1;border:1.5px solid #C5E4F9;border-radius:18px;padding:8px 12px;font-size:13px;outline:none;background:rgba(255,255,255,0.7);font-family:inherit}
+.cmt-in:focus{border-color:#6BBDE8}
+.cmt-s{background:linear-gradient(135deg,#6BBDE8,#4AA8D8);border:none;border-radius:50%;width:32px;height:32px;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
 
-.empty{text-align:center;padding:60px 24px}
-.empty h3{font-size:17px;font-weight:700;color:var(–s6);margin:14px 0 6px}
-.empty p{font-size:13px;color:var(–tm)}
+.empty-s{text-align:center;padding:50px 24px;color:#94B3C2}
+.empty-s div:first-child{font-size:48px;margin-bottom:10px}
+.empty-s h3{color:#3490C0;font-weight:700;margin-bottom:4px}
 
-.tabs{display:flex;align-items:flex-end;justify-content:space-around;padding:6px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,0.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid rgba(106,189,232,0.12);flex-shrink:0;z-index:50}
-.tab{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 14px;color:var(–tm);font-family:inherit;font-size:10px;font-weight:700}
-.tab.on{color:var(–s5)}
-.fab-w{display:flex;align-items:center;justify-content:center;padding-bottom:6px}
-.fab{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(–s4),var(–s6));border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 22px rgba(74,168,216,0.4);transform:translateY(-12px);font-size:28px}
+.tabbar{display:flex;align-items:flex-end;justify-content:space-around;padding:6px 0 calc(8px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,0.94);border-top:1px solid rgba(106,189,232,0.1);flex-shrink:0;z-index:50}
+.tb{display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:none;cursor:pointer;padding:4px 12px;color:#94B3C2;font-size:10px;font-weight:700;font-family:inherit}
+.tb.on{color:#4AA8D8}
+.tb-icon{font-size:22px}
+.fab-w{padding-bottom:4px}
+.fab{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#6BBDE8,#3490C0);border:none;cursor:pointer;color:#fff;font-size:26px;box-shadow:0 4px 18px rgba(74,168,216,0.4);transform:translateY(-10px)}
 
-.chat-c{display:flex;flex-direction:column;height:100%}
-.chat-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(106,189,232,0.1);flex-shrink:0}
-.chat-t{font-weight:700;font-size:16px;color:var(–s7)}
-.chat-n{font-size:12px;color:var(–tm)}
-.chat-msgs{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
-.msg-row{display:flex;gap:8px;margin-bottom:4px}
-.msg-row.mine{justify-content:flex-end}
-.msg-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.msg-c{max-width:72%}
-.msg-who{font-size:11px;color:var(–ts);font-weight:600;margin-bottom:2px;margin-left:4px}
-.msg-b{border-radius:18px 18px 18px 4px;padding:10px 14px;font-size:14px;line-height:1.5;word-break:break-word;white-space:pre-wrap}
-.msg-row:not(.mine) .msg-b{background:rgba(106,189,232,0.1)}
-.msg-row.mine .msg-b{background:linear-gradient(135deg,var(–s4),var(–s5));color:#fff;border-radius:18px 18px 4px 18px}
-.msg-b img{max-width:200px;border-radius:12px;margin-top:4px;display:block}
-.msg-tm{font-size:10px;color:var(–tm);margin-top:2px}
-.msg-rd{font-size:9px;color:var(–s4);font-weight:600}
-.chat-bar{display:flex;gap:8px;padding:10px 12px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(106,189,232,0.1);background:rgba(255,255,255,0.8);flex-shrink:0;align-items:flex-end}
-.chat-ex{display:flex;gap:2px;align-items:center}
-.chat-ex button,.chat-ex label{background:none;border:none;cursor:pointer;padding:8px;color:var(–s5);font-size:20px;display:flex}
-.chat-inp{flex:1;border:1.5px solid var(–s2);border-radius:22px;padding:11px 16px;font-size:14px;outline:none;background:rgba(255,255,255,0.9);font-family:inherit}
-.chat-snd{background:linear-gradient(135deg,var(–s4),var(–s5));border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;font-size:18px}
-.emoji-pop{position:absolute;bottom:100%;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,0.1);padding:16px;max-height:260px;overflow-y:auto;animation:slideUp 0.25s ease;z-index:10}
-.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.emoji-b{background:none;border:none;font-size:24px;padding:6px;cursor:pointer;border-radius:8px}
+.chat-wrap{display:flex;flex-direction:column;height:100%}
+.chat-hd{padding:12px 16px;border-bottom:1px solid rgba(106,189,232,0.08);font-weight:700;color:#2A7099;display:flex;justify-content:space-between;flex-shrink:0}
+.chat-hd span:last-child{font-weight:500;font-size:12px;color:#94B3C2}
+.chat-body{flex:1;overflow-y:auto;padding:10px 12px;-webkit-overflow-scrolling:touch}
+.mr{display:flex;gap:8px;margin-bottom:4px}
+.mr.me{justify-content:flex-end}
+.mr-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.mr-c{max-width:72%}
+.mr-who{font-size:11px;color:#5A8296;font-weight:600;margin-bottom:1px;margin-left:4px}
+.mr-bub{border-radius:16px 16px 16px 4px;padding:9px 13px;font-size:14px;line-height:1.5;word-break:break-word;white-space:pre-wrap}
+.mr:not(.me) .mr-bub{background:rgba(106,189,232,0.1)}
+.mr.me .mr-bub{background:linear-gradient(135deg,#6BBDE8,#4AA8D8);color:#fff;border-radius:16px 16px 4px 16px}
+.mr-bub img{max-width:180px;border-radius:10px;margin-top:4px;display:block}
+.mr-tm{font-size:10px;color:#94B3C2;margin-top:1px}
+.mr.me .mr-tm{text-align:right}
+.mr-rd{font-size:9px;color:#4AA8D8;font-weight:600;margin-right:4px}
+.chat-foot{display:flex;gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(106,189,232,0.08);background:rgba(255,255,255,0.85);flex-shrink:0;align-items:center}
+.chat-foot button,.chat-foot label{background:none;border:none;cursor:pointer;padding:6px;font-size:20px;color:#4AA8D8}
+.chat-in{flex:1;border:1.5px solid #C5E4F9;border-radius:20px;padding:10px 14px;font-size:14px;outline:none;background:rgba(255,255,255,0.9);font-family:inherit}
+.chat-in:focus{border-color:#6BBDE8}
+.chat-send{background:linear-gradient(135deg,#6BBDE8,#4AA8D8);border:none;border-radius:50%;width:40px;height:40px;color:#fff;font-size:16px;cursor:pointer;flex-shrink:0}
+.emo-pop{position:absolute;bottom:100%;left:0;right:0;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.1);padding:12px;max-height:240px;overflow-y:auto;animation:slideUp .2s ease;z-index:10;display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.emo-pop button{background:none;border:none;font-size:22px;padding:6px;cursor:pointer;border-radius:8px}
 
-.prof{padding:0 16px 20px}
-.prof-hd{display:flex;flex-direction:column;align-items:center;padding:28px 0 20px}
-.prof-av{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 20px rgba(106,189,232,0.25);border:3px solid #fff}
-.prof-nm{font-size:22px;font-weight:800;color:var(–s7);margin-top:12px}
-.prof-un{font-size:13px;color:var(–tm);margin-top:2px}
-.prof-stats{display:flex;gap:36px;margin-top:22px}
-.stat{display:flex;flex-direction:column;align-items:center}
-.stat-n{font-size:20px;font-weight:800;color:var(–s6)}
-.stat-l{font-size:11px;color:var(–tm);font-weight:600;margin-top:2px}
-.prof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:16px;overflow:hidden;margin-top:16px}
-.grid-i{position:relative;overflow:hidden;background:var(–s1)}
-.grid-i::before{content:’’;display:block;padding-top:100%}
-.grid-i img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
-.grid-t{position:absolute;top:0;left:0;width:100%;height:100%;padding:10px;font-size:11px;color:var(–ts);display:flex;align-items:center;justify-content:center;text-align:center}
-.grid-prv{position:absolute;top:6px;right:6px;font-size:12px}
-.btn-out{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:24px;border-radius:16px;background:var(–acs);border:1.5px solid rgba(255,126,157,0.2);color:var(–ac);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.prof-wrap{padding:0 16px 20px}
+.prof-hd{display:flex;flex-direction:column;align-items:center;padding:24px 0 16px}
+.prof-av{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 4px 18px rgba(106,189,232,0.2);border:3px solid #fff}
+.prof-nm{font-size:20px;font-weight:800;color:#2A7099;margin-top:10px}
+.prof-un{font-size:13px;color:#94B3C2;margin-top:2px}
+.prof-st{display:flex;gap:30px;margin-top:18px}
+.st{text-align:center}
+.st-n{font-size:18px;font-weight:800;color:#3490C0}
+.st-l{font-size:11px;color:#94B3C2;font-weight:600}
+.prof-g{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:14px;overflow:hidden;margin-top:14px}
+.pg-i{position:relative;background:#E1F1FC}
+.pg-i::before{content:’’;display:block;padding-top:100%}
+.pg-i img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.pg-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px;font-size:11px;color:#5A8296;text-align:center}
+.pg-prv{position:absolute;top:4px;right:4px;font-size:11px}
+.btn-logout{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;margin-top:20px;border-radius:14px;background:rgba(255,126,157,0.1);border:1px solid rgba(255,126,157,0.2);color:#FF7E9D;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 
-.overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(30,58,76,0.2);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
-.modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:92vh;overflow:auto;animation:slideUp 0.3s ease}
-.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(106,189,232,0.1);position:sticky;top:0;background:#fff;z-index:1}
-.modal-cls{background:none;border:none;cursor:pointer;color:var(–s5);padding:4px;font-size:24px}
-.modal-tt{font-weight:700;font-size:16px;color:var(–s7)}
-.modal-ok{background:linear-gradient(135deg,var(–s4),var(–s5));border:none;border-radius:20px;padding:7px 20px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
-.post-ta{width:100%;min-height:130px;border:none;outline:none;padding:16px;font-size:16px;resize:none;line-height:1.6;background:transparent;font-family:inherit}
-.modal-ft{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 16px;border-top:1px solid rgba(106,189,232,0.08)}
-.media-btn{display:flex;align-items:center;gap:6px;color:var(–s5);font-size:14px;font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit}
-.prv-tog{display:flex;align-items:center;gap:5px;border-radius:20px;padding:7px 14px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.prv-tog.pub{background:rgba(106,189,232,0.12);color:var(–s5)}
-.prv-tog.prv{background:var(–acs);color:var(–ac)}
-.prev-w{position:relative;padding:0 16px 12px}
-.prev-w img{width:100%;border-radius:16px;max-height:280px;object-fit:cover}
-.prev-rm{position:absolute;top:8px;right:24px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
-.invite-c{padding:24px;text-align:center}
-.invite-c p{font-size:14px;color:var(–ts);line-height:1.7;margin:12px 0 20px}
-.code-box{display:flex;align-items:center;justify-content:space-between;background:rgba(106,189,232,0.06);border-radius:16px;padding:14px 16px;border:1.5px dashed rgba(106,189,232,0.3)}
-.code-t{font-size:15px;font-weight:700;color:var(–s6);word-break:break-all;font-family:monospace}
-.btn-cp{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(–s4),var(–s5));border:none;border-radius:12px;padding:9px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit}
-.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(–s7);color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.15);animation:fadeUp 0.3s ease}
-.mv{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center}
-.mv img{max-width:95%;max-height:90vh;object-fit:contain;border-radius:8px}
-.mv-cls{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(30,58,76,0.18);display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:520px;max-height:90vh;overflow:auto;animation:slideUp .3s ease}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(106,189,232,0.08);position:sticky;top:0;background:#fff;z-index:1}
+.modal-hd button:first-child{background:none;border:none;cursor:pointer;font-size:22px;color:#4AA8D8;padding:4px}
+.modal-hd span{font-weight:700;font-size:16px;color:#2A7099}
+.modal-hd button:last-child{background:linear-gradient(135deg,#6BBDE8,#4AA8D8);border:none;border-radius:18px;padding:6px 18px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.post-ta{width:100%;min-height:120px;border:none;outline:none;padding:16px;font-size:16px;resize:none;line-height:1.6;background:transparent;font-family:inherit}
+.modal-ft{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 14px;border-top:1px solid rgba(106,189,232,0.06)}
+.mpick{display:flex;align-items:center;gap:5px;color:#4AA8D8;font-size:14px;font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit}
+.mpriv{border-radius:18px;padding:6px 12px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.mpriv.pub{background:rgba(106,189,232,0.12);color:#4AA8D8}
+.mpriv.prv{background:rgba(255,126,157,0.12);color:#FF7E9D}
+.prev-w{position:relative;padding:0 16px 10px}
+.prev-w img{width:100%;border-radius:14px;max-height:260px;object-fit:cover}
+.prev-rm{position:absolute;top:6px;right:22px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px}
+.inv-body{padding:20px 24px;text-align:center}
+.inv-body p{font-size:14px;color:#5A8296;line-height:1.7;margin:10px 0 16px}
+.code-box{display:flex;align-items:center;justify-content:space-between;background:rgba(106,189,232,0.05);border-radius:14px;padding:12px 14px;border:1.5px dashed rgba(106,189,232,0.3)}
+.code-v{font-size:14px;font-weight:700;color:#3490C0;word-break:break-all;font-family:monospace}
+.btn-copy{background:linear-gradient(135deg,#6BBDE8,#4AA8D8);border:none;border-radius:10px;padding:8px 12px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit}
+.toast{position:fixed;top:50px;left:50%;transform:translateX(-50%);background:#2A7099;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.viewer{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center}
+.viewer img{max-width:95%;max-height:90vh;object-fit:contain;border-radius:8px}
+.viewer button{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer}
 </style>
 
 </head>
 <body>
-<div id="app"><div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center"><div style="font-size:56px;animation:float 2.5s ease-in-out infinite">☁️</div><div style="font-size:26px;font-weight:700;color:#3490C0;margin-top:12px">잭슨's SNS</div><div style="margin-top:20px;width:28px;height:28px;border:3px solid #C5E4F9;border-top-color:#4AA8D8;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block"></div></div></div>
+<div id="app"></div>
 <script>
-var FBCFG={apiKey:"AIzaSyDunCZpFNUUgnDet-lw4niLbCvVO4WQkaQ",authDomain:"jackson-s-sns-practice.firebaseapp.com",projectId:"jackson-s-sns-practice",storageBucket:"jackson-s-sns-practice.firebasestorage.app",messagingSenderId:"449794120985",appId:"1:449794120985:web:c2e51982559f379bb63988"};
-var db=null,fbOK=false;
-function initFB(){try{if(typeof firebase!=='undefined'){firebase.initializeApp(FBCFG);db=firebase.firestore();fbOK=true;}}catch(e){console.log(e);}}
-function lsG(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
-function lsS(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-function lsD(k){localStorage.removeItem(k)}
+// ======= APP START - renders immediately, no dependencies =======
+var $=document.getElementById('app');
 
-var DS={
-getUser:function(u){if(fbOK)return db.collection(‘users’).doc(u.toLowerCase()).get().then(function(d){return d.exists?d.data():null});return Promise.resolve(lsG(‘u:’+u.toLowerCase()))},
-setUser:function(u,d){if(fbOK)return db.collection(‘users’).doc(u.toLowerCase()).set(d);lsS(‘u:’+u.toLowerCase(),d);return Promise.resolve()},
-getMembers:function(g){if(fbOK)return db.collection(‘groups’).doc(g).get().then(function(d){return d.exists?(d.data().members||[]):[]});return Promise.resolve(lsG(‘m:’+g)||[])},
-addMember:function(g,m){if(fbOK)return db.collection(‘groups’).doc(g).set({members:firebase.firestore.FieldValue.arrayUnion(m)},{merge:true});var ms=lsG(‘m:’+g)||[];if(!ms.find(function(x){return x.id===m.id})){ms.push(m);lsS(‘m:’+g,ms)}return Promise.resolve()},
-getPosts:function(g){if(fbOK)return db.collection(‘groups’).doc(g).collection(‘posts’).orderBy(‘ts’,‘desc’).limit(100).get().then(function(s){return s.docs.map(function(d){var o=d.data();o.id=d.id;return o})});return Promise.resolve((lsG(‘p:’+g)||[]).sort(function(a,b){return b.ts-a.ts}))},
-addPost:function(g,p){if(fbOK)return db.collection(‘groups’).doc(g).collection(‘posts’).doc(p.id).set(p);var ps=lsG(‘p:’+g)||[];ps.unshift(p);lsS(‘p:’+g,ps);return Promise.resolve()},
-updPost:function(g,id,d){if(fbOK)return db.collection(‘groups’).doc(g).collection(‘posts’).doc(id).update(d);var ps=lsG(‘p:’+g)||[];var i=ps.findIndex(function(x){return x.id===id});if(i>=0){for(var k in d)ps[i][k]=d[k];lsS(‘p:’+g,ps)}return Promise.resolve()},
-delPost:function(g,id){if(fbOK)return db.collection(‘groups’).doc(g).collection(‘posts’).doc(id).delete();lsS(‘p:’+g,(lsG(‘p:’+g)||[]).filter(function(x){return x.id!==id}));return Promise.resolve()},
-getMsgs:function(g){if(fbOK)return db.collection(‘groups’).doc(g).collection(‘messages’).orderBy(‘ts’,‘asc’).limit(500).get().then(function(s){return s.docs.map(function(d){var o=d.data();o.id=d.id;return o})});return Promise.resolve(lsG(‘ms:’+g)||[])},
-addMsg:function(g,m){if(fbOK)return db.collection(‘groups’).doc(g).collection(‘messages’).doc(m.id).set(m);var ms=lsG(‘ms:’+g)||[];ms.push(m);lsS(‘ms:’+g,ms);return Promise.resolve()},
-markRead:function(g,uid){if(!fbOK)return Promise.resolve();return db.collection(‘groups’).doc(g).collection(‘messages’).where(‘authorId’,’!=’,uid).get().then(function(s){var b=db.batch();s.docs.forEach(function(d){var dt=d.data();if(!dt.readBy||dt.readBy.indexOf(uid)<0)b.update(d.ref,{readBy:firebase.firestore.FieldValue.arrayUnion(uid)})});return b.commit()}).catch(function(){})},
-uploadImg:function(file){return new Promise(function(resolve){var img=new Image();img.onload=function(){var c=document.createElement(‘canvas’);var MAX=800,w=img.width,h=img.height;if(w>h){if(w>MAX){h=h*MAX/w;w=MAX}}else{if(h>MAX){w=w*MAX/h;h=MAX}}c.width=w;c.height=h;c.getContext(‘2d’).drawImage(img,0,0,w,h);resolve(c.toDataURL(‘image/jpeg’,0.6))};img.onerror=function(){resolve(’’)};img.src=URL.createObjectURL(file)})},
-listenPosts:function(g,cb){if(!fbOK)return function(){};return db.collection(‘groups’).doc(g).collection(‘posts’).orderBy(‘ts’,‘desc’).limit(100).onSnapshot(function(s){cb(s.docs.map(function(d){var o=d.data();o.id=d.id;return o}))})},
-listenMsgs:function(g,cb){if(!fbOK)return function(){};return db.collection(‘groups’).doc(g).collection(‘messages’).orderBy(‘ts’,‘asc’).limit(500).onSnapshot(function(s){cb(s.docs.map(function(d){var o=d.data();o.id=d.id;return o}))})},
-listenMem:function(g,cb){if(!fbOK)return function(){};return db.collection(‘groups’).doc(g).onSnapshot(function(d){cb(d.exists?(d.data().members||[]):[])})},
+// Show auth right away
+var MODE=‘login’,STEP=1,ERR=’’,FLD={u:’’,p:’’,n:’’,g:’’},TMP=null;
+var ST={user:null,gc:null,tab:‘feed’,posts:[],msgs:[],mems:[],np:false,inv:false,emo:false,vm:null,sc:{},ci:{},chi:’’,uns:[]};
+var db=null,FB=false;
+
+// LS
+function g(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function d(k){localStorage.removeItem(k)}
+
+// Utils
+function id(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5)}
+function h(t){var r=0;for(var i=0;i<t.length;i++)r=((r<<5)-r+t.charCodeAt(i))|0;return Math.abs(r)}
+function ago(t){var d=Date.now()-t;if(d<6e4)return’방금 전’;if(d<36e5)return Math.floor(d/6e4)+‘분 전’;if(d<864e5)return Math.floor(d/36e5)+‘시간 전’;return Math.floor(d/864e5)+‘일 전’}
+function x(t){return t?t.replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’):’’}
+
+var C=[”#7EC8E3”,”#A8D8EA”,”#F9C6D0”,”#C3B1E1”,”#B5EAD7”,”#FFD6A5”,”#CAFFBF”,”#9BF6FF”,”#FFC6FF”];
+var E=[“🌤”,“☁️”,“🌈”,“🦋”,“🌸”,“🍀”,“⭐”,“🌊”,“🎈”,“🐣”,“🌻”,“💫”,“🌙”,“🎨”,“🐱”,“🐶”];
+var EMO=[‘😀’,‘😂’,‘🥰’,‘😍’,‘😎’,‘🤗’,‘😢’,‘😡’,‘👍’,‘👎’,‘❤️’,‘🔥’,‘💯’,‘✨’,‘🎉’,‘🙏’,‘💪’,‘👏’,‘🤔’,‘😱’,‘🥺’,‘😭’,‘🤣’,‘😊’,‘😇’,‘🥳’,‘👀’,‘💀’,‘🌈’,‘☀️’,‘⭐’,‘🐱’,‘🐶’,‘❄️’,‘🎂’,‘🍕’];
+function ac(n){return C[h(n)%C.length]}
+function ae(n){return E[h(n)%E.length]}
+function as(n){return’background:linear-gradient(135deg,’+ac(n)+’,’+ac(n+‘z’)+’)’}
+function av(n,sz){return’<div style="'+as(n)+';width:'+sz+'px;height:'+sz+'px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz*.45)+'px;flex-shrink:0">’+ae(n)+’</div>’}
+function toast(m){var e=document.createElement(‘div’);e.className=‘toast’;e.textContent=m;document.body.appendChild(e);setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e)},2500)}
+
+// Data layer
+var D={
+gu:function(u){if(FB)return db.collection(‘users’).doc(u.toLowerCase()).get().then(function(d){return d.exists?d.data():null});return Promise.resolve(g(‘u:’+u.toLowerCase()))},
+su:function(u,v){if(FB)return db.collection(‘users’).doc(u.toLowerCase()).set(v);s(‘u:’+u.toLowerCase(),v);return Promise.resolve()},
+gm:function(gc){if(FB)return db.collection(‘groups’).doc(gc).get().then(function(d){return d.exists?(d.data().members||[]):[]});return Promise.resolve(g(‘m:’+gc)||[])},
+am:function(gc,m){if(FB)return db.collection(‘groups’).doc(gc).set({members:firebase.firestore.FieldValue.arrayUnion(m)},{merge:true});var ms=g(‘m:’+gc)||[];if(!ms.find(function(z){return z.id===m.id})){ms.push(m);s(‘m:’+gc,ms)}return Promise.resolve()},
+gp:function(gc){if(FB)return db.collection(‘groups’).doc(gc).collection(‘posts’).orderBy(‘ts’,‘desc’).limit(100).get().then(function(s){return s.docs.map(function(d){var o=d.data();o.id=d.id;return o})});return Promise.resolve((g(‘p:’+gc)||[]).sort(function(a,b){return b.ts-a.ts}))},
+ap:function(gc,p){if(FB)return db.collection(‘groups’).doc(gc).collection(‘posts’).doc(p.id).set(p);var ps=g(‘p:’+gc)||[];ps.unshift(p);s(‘p:’+gc,ps);return Promise.resolve()},
+up:function(gc,pid,dt){if(FB)return db.collection(‘groups’).doc(gc).collection(‘posts’).doc(pid).update(dt);var ps=g(‘p:’+gc)||[];var i=ps.findIndex(function(z){return z.id===pid});if(i>=0){for(var k in dt)ps[i][k]=dt[k];s(‘p:’+gc,ps)}return Promise.resolve()},
+dp:function(gc,pid){if(FB)return db.collection(‘groups’).doc(gc).collection(‘posts’).doc(pid).delete();s(‘p:’+gc,(g(‘p:’+gc)||[]).filter(function(z){return z.id!==pid}));return Promise.resolve()},
+gms:function(gc){if(FB)return db.collection(‘groups’).doc(gc).collection(‘messages’).orderBy(‘ts’,‘asc’).limit(500).get().then(function(s){return s.docs.map(function(d){var o=d.data();o.id=d.id;return o})});return Promise.resolve(g(‘ms:’+gc)||[])},
+ams:function(gc,m){if(FB)return db.collection(‘groups’).doc(gc).collection(‘messages’).doc(m.id).set(m);var ms=g(‘ms:’+gc)||[];ms.push(m);s(‘ms:’+gc,ms);return Promise.resolve()},
+img:function(file){return new Promise(function(ok){var im=new Image();im.onload=function(){var c=document.createElement(‘canvas’),M=800,w=im.width,ht=im.height;if(w>ht){if(w>M){ht=ht*M/w;w=M}}else{if(ht>M){w=w*M/ht;ht=M}}c.width=w;c.height=ht;c.getContext(‘2d’).drawImage(im,0,0,w,ht);ok(c.toDataURL(‘image/jpeg’,0.6))};im.onerror=function(){ok(’’)};im.src=URL.createObjectURL(file)})},
+lp:function(gc,cb){if(!FB)return function(){};return db.collection(‘groups’).doc(gc).collection(‘posts’).orderBy(‘ts’,‘desc’).limit(100).onSnapshot(function(s){cb(s.docs.map(function(d){var o=d.data();o.id=d.id;return o}))})},
+lms:function(gc,cb){if(!FB)return function(){};return db.collection(‘groups’).doc(gc).collection(‘messages’).orderBy(‘ts’,‘asc’).limit(500).onSnapshot(function(s){cb(s.docs.map(function(d){var o=d.data();o.id=d.id;return o}))})},
+lm:function(gc,cb){if(!FB)return function(){};return db.collection(‘groups’).doc(gc).onSnapshot(function(d){cb(d.exists?(d.data().members||[]):[])})},
 };
 
-function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5)}
-function hsh(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h)}
-function ago(ts){var d=Date.now()-ts;if(d<60000)return’방금 전’;if(d<3600000)return Math.floor(d/60000)+‘분 전’;if(d<86400000)return Math.floor(d/3600000)+‘시간 전’;return Math.floor(d/86400000)+‘일 전’}
-function esc(s){return s?s.replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’):’’}
+// ======= RENDER =======
+function R(){try{if(!ST.user)rA();else rM()}catch(e){$.innerHTML=’<div style="padding:40px;text-align:center"><p style="color:#FF7E9D;font-weight:700">오류: ‘+e.message+’</p><button onclick="location.reload()" style="margin-top:16px;padding:10px 20px;border-radius:12px;border:none;background:#6BBDE8;color:#fff;font-size:14px;cursor:pointer">새로고침</button></div>’}}
 
-var CLR=[”#7EC8E3”,”#A8D8EA”,”#F9C6D0”,”#C3B1E1”,”#B5EAD7”,”#FFD6A5”,”#CAFFBF”,”#9BF6FF”,”#FFC6FF”];
-var EMJ=[“🌤”,“☁️”,“🌈”,“🦋”,“🌸”,“🍀”,“⭐”,“🌊”,“🎈”,“🐣”,“🌻”,“💫”,“🌙”,“🎨”,“🐱”,“🐶”];
-var EMOJIS=[‘😀’,‘😂’,‘🥰’,‘😍’,‘😎’,‘🤗’,‘😢’,‘😡’,‘👍’,‘👎’,‘❤️’,‘🔥’,‘💯’,‘✨’,‘🎉’,‘🙏’,‘💪’,‘👏’,‘🤔’,‘😱’,‘🥺’,‘😭’,‘🤣’,‘😊’,‘😇’,‘🥳’,‘👀’,‘💀’,‘🌈’,‘☀️’,‘⭐’,‘🐱’,‘🐶’,‘❄️’,‘🎂’,‘🍕’,‘🎸’,‘🏆’];
-function avC(n){return CLR[hsh(n)%CLR.length]}
-function avE(n){return EMJ[hsh(n)%EMJ.length]}
-function avS(n){return’background:linear-gradient(135deg,’+avC(n)+’,’+avC(n+‘z’)+’)’}
-function avH(n,sz){return’<div style="'+avS(n)+';width:'+sz+'px;height:'+sz+'px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(sz*0.45)+'px;flex-shrink:0">’+avE(n)+’</div>’}
-function toast(m){var e=document.createElement(‘div’);e.className=‘toast’;e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},2500)}
-
-var S={user:null,gc:null,tab:‘feed’,posts:[],msgs:[],mems:[],showNP:false,showInv:false,showEmo:false,vMedia:null,showCmt:{},cmtI:{},chatI:’’,unsubs:[]};
-function saveSess(){lsS(‘jk_s’,{user:S.user,gc:S.gc})}
-function loadSess(){return lsG(‘jk_s’)}
-var $a=document.getElementById(‘app’);
-
-function R(){try{if(!S.user)rAuth();else rMain()}catch(e){$a.innerHTML=’<div style="padding:40px;text-align:center"><p style="color:red">오류: ‘+e.message+’</p><button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;border-radius:12px;border:none;background:var(--s4);color:#fff;font-size:14px;cursor:pointer">새로고침</button></div>’}}
-
-var aMode=‘login’,aStep=1,aErr=’’,aF={u:’’,p:’’,n:’’,g:’’},tmpU=null;
-
-function rAuth(){
-var h=’<div class="auth-wrap">’;
-h+=’<div class="auth-cloud" style="top:8%;left:8%;font-size:50px">☁️</div>’;
-h+=’<div class="auth-cloud" style="top:18%;right:6%;font-size:36px;animation-delay:2s">⛅</div>’;
-h+=’<div class="auth-card"><div class="auth-logo">☁️</div>’;
-h+=’<h1 class="auth-title">잭슨's SNS</h1><p class="auth-sub">하늘 아래, 우리의 일상을 나누다</p>’;
-if(aStep===1){
-h+=’<div class="atabs"><button class="'+(aMode==='login'?'on':'')+'" onclick="aMode=\'login\';aErr=\'\';R()">로그인</button><button class="'+(aMode==='signup'?'on':'')+'" onclick="aMode=\'signup\';aErr=\'\';R()">회원가입</button></div>’;
-if(aMode===‘signup’)h+=’<input class="inp" id="aN" placeholder="닉네임" value="'+esc(aF.n)+'">’;
-h+=’<input class="inp" id="aU" placeholder="아이디" value="'+esc(aF.u)+'" autocapitalize="off">’;
-h+=’<input class="inp" id="aP" placeholder="비밀번호" type="password" value="'+esc(aF.p)+'">’;
-if(aErr)h+=’<div class="err">’+aErr+’</div>’;
-h+=’<button class="btn1" onclick="doAuth()">’+(aMode===‘login’?‘로그인’:‘회원가입’)+’</button>’;
+// AUTH
+function rA(){
+var o=’<div class="auth-wrap"><div class="auth-card">’;
+o+=’<div class="auth-logo">☁️</div><h1 class="auth-title">잭슨's SNS</h1><p class="auth-sub">하늘 아래, 우리의 일상을 나누다</p>’;
+if(STEP===1){
+o+=’<div class="tabs-row"><button class="'+(MODE==='login'?'on':'')+'" onclick="MODE=\'login\';ERR=\'\';R()">로그인</button><button class="'+(MODE==='signup'?'on':'')+'" onclick="MODE=\'signup\';ERR=\'\';R()">회원가입</button></div>’;
+if(MODE===‘signup’)o+=’<input class="field" id="fn" placeholder="닉네임" value="'+x(FLD.n)+'">’;
+o+=’<input class="field" id="fu" placeholder="아이디" value="'+x(FLD.u)+'" autocapitalize="off" autocorrect="off">’;
+o+=’<input class="field" id="fp" placeholder="비밀번호" type="password" value="'+x(FLD.p)+'">’;
+if(ERR)o+=’<div class="errmsg">’+ERR+’</div>’;
+o+=’<button class="btn-main" onclick="doA()">’+(MODE===‘login’?‘로그인’:‘회원가입’)+’</button>’;
 }else{
-h+=’<div style="font-size:42px;margin-bottom:8px">🔗</div><h3 style="font-size:18px;font-weight:800;color:var(--s7);margin-bottom:8px">그룹 참여하기</h3>’;
-h+=’<p style="font-size:13px;color:var(--tm);line-height:1.7;margin-bottom:20px">초대 코드를 입력하거나,<br>새 그룹을 만들 수 있어요</p>’;
-h+=’<input class="inp" id="aG" placeholder="초대 코드 (없으면 비워두세요)" value="'+esc(aF.g)+'">’;
-h+=’<button class="btn1" onclick="doJoin()">’+(aF.g.trim()?‘그룹 참여’:‘새 그룹 만들기’)+’</button>’;
+o+=’<div style="font-size:42px;margin-bottom:6px">🔗</div>’;
+o+=’<h3 style="font-size:18px;font-weight:800;color:#2A7099;margin-bottom:6px">그룹 참여하기</h3>’;
+o+=’<p style="font-size:13px;color:#94B3C2;line-height:1.7;margin-bottom:16px">초대 코드를 입력하거나,<br>새 그룹을 만들 수 있어요</p>’;
+o+=’<input class="field" id="fg" placeholder="초대 코드 (없으면 비워두세요)" value="'+x(FLD.g)+'">’;
+o+=’<button class="btn-main" onclick="doJ()">’+(FLD.g.trim()?‘그룹 참여’:‘새 그룹 만들기’)+’</button>’;
 }
-h+=’</div></div>’;
-$a.innerHTML=h;
+o+=’</div></div>’;
+$.innerHTML=o;
 setTimeout(function(){
 var e;
-e=document.getElementById(‘aN’);if(e)e.oninput=function(){aF.n=e.value};
-e=document.getElementById(‘aU’);if(e)e.oninput=function(){aF.u=e.value};
-e=document.getElementById(‘aP’);if(e){e.oninput=function(){aF.p=e.value};e.onkeydown=function(ev){if(ev.key===‘Enter’)doAuth()}}
-e=document.getElementById(‘aG’);if(e)e.oninput=function(){aF.g=e.value};
-},50);
+e=document.getElementById(‘fn’);if(e)e.oninput=function(){FLD.n=this.value};
+e=document.getElementById(‘fu’);if(e)e.oninput=function(){FLD.u=this.value};
+e=document.getElementById(‘fp’);if(e){e.oninput=function(){FLD.p=this.value};e.onkeydown=function(ev){if(ev.key===‘Enter’)doA()}}
+e=document.getElementById(‘fg’);if(e)e.oninput=function(){FLD.g=this.value};
+},30);
 }
 
-function doAuth(){
-var u=aF.u.trim(),p=aF.p.trim(),n=aF.n.trim();
-if(!u||!p){aErr=‘아이디와 비밀번호를 입력하세요’;R();return}
-if(aMode===‘signup’&&!n){aErr=‘닉네임을 입력하세요’;R();return}
-DS.getUser(u).then(function(ex){
-if(aMode===‘signup’){
-if(ex){aErr=‘이미 존재하는 아이디입니다’;R();return}
-tmpU={id:uid(),name:n,username:u.toLowerCase()};
-DS.setUser(u,{id:tmpU.id,name:n,username:u.toLowerCase(),password:p}).then(function(){aStep=2;aErr=’’;R()}).catch(function(e){aErr=‘오류: ‘+e.message;R()});
+function doA(){
+var u=FLD.u.trim(),p=FLD.p.trim(),n=FLD.n.trim();
+if(!u||!p){ERR=‘아이디와 비밀번호를 입력하세요’;R();return}
+if(MODE===‘signup’&&!n){ERR=‘닉네임을 입력하세요’;R();return}
+D.gu(u).then(function(ex){
+if(MODE===‘signup’){
+if(ex){ERR=‘이미 존재하는 아이디입니다’;R();return}
+TMP={id:id(),name:n,username:u.toLowerCase()};
+D.su(u,{id:TMP.id,name:n,username:u.toLowerCase(),password:p}).then(function(){STEP=2;ERR=’’;R()}).catch(function(e){ERR=‘오류: ‘+e.message;R()})
 }else{
-if(!ex||ex.password!==p){aErr=‘아이디 또는 비밀번호가 틀립니다’;R();return}
-tmpU={id:ex.id,name:ex.name,username:ex.username};aStep=2;aErr=’’;R();
+if(!ex||ex.password!==p){ERR=‘아이디 또는 비밀번호가 틀립니다’;R();return}
+TMP={id:ex.id,name:ex.name,username:ex.username};STEP=2;ERR=’’;R()
 }
-}).catch(function(e){aErr=’연결 오류: ’+e.message;R()});
-}
-
-function doJoin(){
-if(!tmpU)return;
-var gc=aF.g.trim()||(‘sky-’+uid());
-S.user=tmpU;S.gc=gc;saveSess();
-DS.addMember(gc,{id:tmpU.id,name:tmpU.name,joinedAt:Date.now()}).then(function(){startL();R()}).catch(function(){startL();R()});
+}).catch(function(e){ERR=‘연결 오류’;R()})
 }
 
-function rMain(){
-var h=’<div class="hdr"><div class="hdr-logo">☁️ 잭슨's SNS</div><div style="display:flex;gap:2px"><button class="hdr-btn" onclick="S.showInv=true;R()">🔗</button><button class="hdr-btn" onclick="doOut()">🚪</button></div></div>’;
-h+=’<div class="main" id="mc"></div>’;
-h+=’<nav class="tabs">’;
-h+=’<button class="tab '+(S.tab==='feed'?'on':'')+'" onclick="S.tab=\'feed\';uC()">🏠<span>피드</span></button>’;
-h+=’<button class="tab '+(S.tab==='chat'?'on':'')+'" onclick="S.tab=\'chat\';uC()">💬<span>채팅</span></button>’;
-h+=’<div class="fab-w"><button class="fab" onclick="S.showNP=true;R()">+</button></div>’;
-h+=’<button class="tab" onclick="S.showInv=true;R()">👥<span>멤버</span></button>’;
-h+=’<button class="tab '+(S.tab==='profile'?'on':'')+'" onclick="S.tab=\'profile\';uC()">👤<span>프로필</span></button>’;
-h+=’</nav>’;
-if(S.showNP)h+=npModal();
-if(S.showInv)h+=invModal();
-if(S.vMedia)h+=’<div class="mv" onclick="S.vMedia=null;R()"><img src="'+S.vMedia+'"><button class="mv-cls" onclick="event.stopPropagation();S.vMedia=null;R()">✕</button></div>’;
-$a.innerHTML=h;
+function doJ(){
+if(!TMP)return;
+var gc=FLD.g.trim()||(‘sky-’+id());
+ST.user=TMP;ST.gc=gc;s(‘jk’,{user:ST.user,gc:gc});
+D.am(gc,{id:TMP.id,name:TMP.name,joinedAt:Date.now()}).then(function(){sL();R()}).catch(function(){sL();R()})
+}
+
+// MAIN
+function rM(){
+var o=’<div class="hdr"><div class="hdr-logo">☁️ 잭슨's SNS</div><div><button onclick="ST.inv=true;R()">🔗</button><button onclick="doO()">🚪</button></div></div>’;
+o+=’<div class="content" id="ct"></div>’;
+o+=’<nav class="tabbar">’;
+o+=’<button class="tb'+(ST.tab==='feed'?' on':'')+'" onclick="ST.tab=\'feed\';uC()"><span class="tb-icon">🏠</span>피드</button>’;
+o+=’<button class="tb'+(ST.tab==='chat'?' on':'')+'" onclick="ST.tab=\'chat\';uC()"><span class="tb-icon">💬</span>채팅</button>’;
+o+=’<div class="fab-w"><button class="fab" onclick="ST.np=true;R()">+</button></div>’;
+o+=’<button class="tb" onclick="ST.inv=true;R()"><span class="tb-icon">👥</span>멤버</button>’;
+o+=’<button class="tb'+(ST.tab==='prof'?' on':'')+'" onclick="ST.tab=\'prof\';uC()"><span class="tb-icon">👤</span>프로필</button>’;
+o+=’</nav>’;
+if(ST.np)o+=npM();
+if(ST.inv)o+=invM();
+if(ST.vm)o+=’<div class="viewer" onclick="ST.vm=null;R()"><img src="'+ST.vm+'"><button onclick="event.stopPropagation();ST.vm=null;R()">✕</button></div>’;
+$.innerHTML=o;
 uC();
 }
 
 function uC(){
-var mc=document.getElementById(‘mc’);if(!mc)return;
-document.querySelectorAll(’.tab’).forEach(function(t,i){var tabs=[‘feed’,‘chat’,’’,’’,‘profile’];t.className=‘tab’+(tabs[i]===S.tab?’ on’:’’)});
-if(S.tab===‘feed’)rFeed(mc);
-else if(S.tab===‘chat’)rChat(mc);
-else if(S.tab===‘profile’)rProf(mc);
+var ct=document.getElementById(‘ct’);if(!ct)return;
+if(ST.tab===‘feed’)rF(ct);
+else if(ST.tab===‘chat’)rC(ct);
+else if(ST.tab===‘prof’)rP(ct);
 }
 
-function rFeed(mc){
-var vis=S.posts.filter(function(p){return!p.isPrivate||p.authorId===S.user.id});
-var h=’<div class="membar">’;
-S.mems.forEach(function(m){h+=’<div class="memchip"><div class="memav" style="'+avS(m.name)+'">’+avE(m.name)+’</div><span class="memname">’+esc(m.name)+’</span></div>’});
-h+=’</div>’;
-if(!vis.length){h+=’<div class="empty"><div style="font-size:52px">🌤</div><h3>아직 게시물이 없어요</h3><p>첫 번째 게시물을 올려보세요!</p></div>’}
-else vis.forEach(function(p){h+=pHTML(p)});
-h+=’<div style="height:20px"></div>’;
-mc.innerHTML=h;
-bFeed();
+// FEED
+function rF(ct){
+var vis=ST.posts.filter(function(p){return!p.isPrivate||p.authorId===ST.user.id});
+var o=’<div class="membar">’;
+ST.mems.forEach(function(m){o+=’<div class="mc"><div class="mc-av" style="'+as(m.name)+'">’+ae(m.name)+’</div><div class="mc-nm">’+x(m.name)+’</div></div>’});
+o+=’</div>’;
+if(!vis.length)o+=’<div class="empty-s"><div>🌤</div><h3>아직 게시물이 없어요</h3><p>첫 번째 게시물을 올려보세요!</p></div>’;
+else vis.forEach(function(p){o+=pC(p)});
+o+=’<div style="height:16px"></div>’;
+ct.innerHTML=o;
+bF();
 }
 
-function pHTML(p){
-var lk=(p.likes||[]).indexOf(S.user.id)>=0,mine=p.authorId===S.user.id,cs=p.comments||[],sh=S.showCmt[p.id];
-var h=’<div class="post"><div class="post-hd"><div class="post-av" style="'+avS(p.author)+'">’+avE(p.author)+’</div><div class="post-meta"><span class="post-nm">’+esc(p.author)+’</span><span class="post-tm">’+ago(p.ts)+’ ‘+(p.isPrivate?’<span style="color:var(--ac);font-size:10px">🔒 비공개</span>’:’<span style="color:var(--s4);font-size:10px">🌐 공개</span>’)+’</span></div>’;
-if(mine)h+=’<button class="post-del" data-del="'+p.id+'">🗑</button>’;
-h+=’</div>’;
-if(p.text)h+=’<p class="post-txt">’+esc(p.text)+’</p>’;
-if(p.mediaUrl)h+=’<div class="post-img"><img src="'+p.mediaUrl+'" loading="lazy" data-vi="'+p.mediaUrl+'"></div>’;
-h+=’<div class="post-acts"><button class="abtn '+(lk?'liked':'')+'" data-lk="'+p.id+'">’+(lk?‘❤️’:‘🤍’)+’ ‘+((p.likes||[]).length||’’)+’</button>’;
-h+=’<button class="abtn" data-tc="'+p.id+'">💬 ‘+(cs.length||’’)+’</button></div>’;
-if(sh){h+=’<div class="cmt-sec">’;
-cs.forEach(function(c){h+=’<div class="cmt-item"><div class="cmt-av" style="'+avS(c.author)+'">’+avE(c.author)+’</div><div class="cmt-bub"><span class="cmt-name">’+esc(c.author)+’</span><span class="cmt-txt">’+esc(c.text)+’</span></div></div>’});
-h+=’<div class="cmt-row"><input class="cmt-inp" placeholder="댓글 작성..." data-ci="'+p.id+'" value="'+esc(S.cmtI[p.id]||'')+'"><button class="cmt-send" data-cs="'+p.id+'">➤</button></div></div>’}
-h+=’</div>’;return h;
+function pC(p){
+var lk=(p.likes||[]).indexOf(ST.user.id)>=0,mi=p.authorId===ST.user.id,cs=p.comments||[],sh=ST.sc[p.id];
+var o=’<div class="card"><div class="card-hd"><div class="card-av" style="'+as(p.author)+'">’+ae(p.author)+’</div><div style="flex:1"><div class="card-nm">’+x(p.author)+’</div><div class="card-tm">’+ago(p.ts)+’ ‘+(p.isPrivate?‘🔒’:‘🌐’)+’</div></div>’;
+if(mi)o+=’<button class="card-del" data-d="'+p.id+'">🗑</button>’;
+o+=’</div>’;
+if(p.text)o+=’<div class="card-txt">’+x(p.text)+’</div>’;
+if(p.mediaUrl)o+=’<div class="card-img"><img src="'+p.mediaUrl+'" data-v="'+p.mediaUrl+'" loading="lazy"></div>’;
+o+=’<div class="card-acts"><button class="act'+(lk?' on':'')+'" data-l="'+p.id+'">’+(lk?‘❤️’:‘🤍’)+’ ‘+((p.likes||[]).length||’’)+’</button><button class="act" data-t="'+p.id+'">💬 ‘+(cs.length||’’)+’</button></div>’;
+if(sh){o+=’<div class="cmt-sec">’;
+cs.forEach(function(c){o+=’<div class="cmt-i"><div class="cmt-a" style="'+as(c.author)+'">’+ae(c.author)+’</div><div class="cmt-b"><b>’+x(c.author)+’</b>’+x(c.text)+’</div></div>’});
+o+=’<div class="cmt-r"><input class="cmt-in" placeholder="댓글..." data-ci="'+p.id+'" value="'+x(ST.ci[p.id]||'')+'"><button class="cmt-s" data-cs="'+p.id+'">➤</button></div></div>’}
+o+=’</div>’;return o;
 }
 
-function bFeed(){
-document.querySelectorAll(’[data-lk]’).forEach(function(b){b.onclick=function(){tgLike(b.dataset.lk)}});
-document.querySelectorAll(’[data-del]’).forEach(function(b){b.onclick=function(){dPost(b.dataset.del)}});
-document.querySelectorAll(’[data-tc]’).forEach(function(b){b.onclick=function(){S.showCmt[b.dataset.tc]=!S.showCmt[b.dataset.tc];uC()}});
-document.querySelectorAll(’[data-ci]’).forEach(function(i){i.oninput=function(){S.cmtI[i.dataset.ci]=i.value};i.onkeydown=function(e){if(e.key===‘Enter’)aCmt(i.dataset.ci)}});
-document.querySelectorAll(’[data-cs]’).forEach(function(b){b.onclick=function(){aCmt(b.dataset.cs)}});
-document.querySelectorAll(’[data-vi]’).forEach(function(i){i.onclick=function(){S.vMedia=i.dataset.vi;R()}});
+function bF(){
+document.querySelectorAll(’[data-l]’).forEach(function(b){b.onclick=function(){tL(this.getAttribute(‘data-l’))}});
+document.querySelectorAll(’[data-d]’).forEach(function(b){b.onclick=function(){dP(this.getAttribute(‘data-d’))}});
+document.querySelectorAll(’[data-t]’).forEach(function(b){b.onclick=function(){var k=this.getAttribute(‘data-t’);ST.sc[k]=!ST.sc[k];uC()}});
+document.querySelectorAll(’[data-ci]’).forEach(function(i){i.oninput=function(){ST.ci[this.getAttribute(‘data-ci’)]=this.value};i.onkeydown=function(e){if(e.key===‘Enter’)aCm(this.getAttribute(‘data-ci’))}});
+document.querySelectorAll(’[data-cs]’).forEach(function(b){b.onclick=function(){aCm(this.getAttribute(‘data-cs’))}});
+document.querySelectorAll(’[data-v]’).forEach(function(i){i.onclick=function(){ST.vm=this.getAttribute(‘data-v’);R()}});
 }
 
-function tgLike(id){var p=S.posts.find(function(x){return x.id===id});if(!p)return;var l=p.likes||[];var i=l.indexOf(S.user.id);if(i>=0)l.splice(i,1);else l.push(S.user.id);p.likes=l;uC();DS.updPost(S.gc,id,{likes:l})}
-function aCmt(id){var t=(S.cmtI[id]||’’).trim();if(!t)return;var p=S.posts.find(function(x){return x.id===id});if(!p)return;var c=p.comments||[];c.push({id:uid(),author:S.user.name,authorId:S.user.id,text:t,ts:Date.now()});p.comments=c;S.cmtI[id]=’’;uC();DS.updPost(S.gc,id,{comments:c})}
-function dPost(id){if(!confirm(‘삭제?’))return;S.posts=S.posts.filter(function(x){return x.id!==id});uC();DS.delPost(S.gc,id)}
+function tL(pid){var p=ST.posts.find(function(z){return z.id===pid});if(!p)return;var l=p.likes||[];var i=l.indexOf(ST.user.id);if(i>=0)l.splice(i,1);else l.push(ST.user.id);p.likes=l;uC();D.up(ST.gc,pid,{likes:l})}
+function aCm(pid){var t=(ST.ci[pid]||’’).trim();if(!t)return;var p=ST.posts.find(function(z){return z.id===pid});if(!p)return;var c=p.comments||[];c.push({id:id(),author:ST.user.name,authorId:ST.user.id,text:t,ts:Date.now()});p.comments=c;ST.ci[pid]=’’;uC();D.up(ST.gc,pid,{comments:c})}
+function dP(pid){if(!confirm(‘삭제?’))return;ST.posts=ST.posts.filter(function(z){return z.id!==pid});uC();D.dp(ST.gc,pid)}
 
-function rChat(mc){
-var h=’<div class="chat-c"><div class="chat-hd"><span class="chat-t">💬 오픈 채팅</span><span class="chat-n">’+S.mems.length+‘명 참여중</span></div>’;
-h+=’<div class="chat-msgs" id="cM">’;
-if(!S.msgs.length)h+=’<div style="text-align:center;padding:60px 20px;color:var(--tm)"><div style="font-size:40px;margin-bottom:8px">💬</div>대화를 시작해보세요!</div>’;
-else S.msgs.forEach(function(m,i){
-var mine=m.authorId===S.user.id;
-var shAv=i===0||S.msgs[i-1].authorId!==m.authorId;
-var rds=(m.readBy||[]).filter(function(x){return x!==m.authorId}).length;
-var allR=rds>=(S.mems.length-1)&&S.mems.length>1;
-h+=’<div class=“msg-row ‘+(mine?‘mine’:’’)+’””>’;
-if(!mine&&shAv)h+=’<div class="msg-av" style="'+avS(m.author)+'">’+avE(m.author)+’</div>’;
-if(!mine&&!shAv)h+=’<div style="width:32px"></div>’;
-h+=’<div class="msg-c">’;
-if(!mine&&shAv)h+=’<div class="msg-who">’+esc(m.author)+’</div>’;
-h+=’<div class="msg-b">’+esc(m.text);
-if(m.mediaUrl)h+=’<img src="'+m.mediaUrl+'" data-vi="'+m.mediaUrl+'">’;
-h+=’</div><div class="msg-tm" style="text-align:'+(mine?'right':'left')+'">’;
-if(mine)h+=’<span class="msg-rd" style="color:'+(allR?'var(--s4)':'var(--tm)')+'">’+(allR?‘✓✓’:‘✓’)+’</span> ‘;
-h+=ago(m.ts)+’</div></div></div>’;
+// CHAT
+function rC(ct){
+var o=’<div class="chat-wrap"><div class="chat-hd"><span>💬 오픈 채팅</span><span>’+ST.mems.length+‘명</span></div>’;
+o+=’<div class="chat-body" id="cb">’;
+if(!ST.msgs.length)o+=’<div class="empty-s" style="padding:40px"><div>💬</div><p>대화를 시작해보세요!</p></div>’;
+else ST.msgs.forEach(function(m,i){
+var me=m.authorId===ST.user.id,sa=i===0||ST.msgs[i-1].authorId!==m.authorId;
+var rd=(m.readBy||[]).filter(function(z){return z!==m.authorId}).length;
+var ar=rd>=(ST.mems.length-1)&&ST.mems.length>1;
+o+=’<div class="mr'+(me?' me':'')+'">’;
+if(!me&&sa)o+=’<div class="mr-av" style="'+as(m.author)+'">’+ae(m.author)+’</div>’;
+if(!me&&!sa)o+=’<div style="width:30px"></div>’;
+o+=’<div class="mr-c">’;
+if(!me&&sa)o+=’<div class="mr-who">’+x(m.author)+’</div>’;
+o+=’<div class="mr-bub">’+x(m.text);
+if(m.mediaUrl)o+=’<img src="'+m.mediaUrl+'" data-v="'+m.mediaUrl+'">’;
+o+=’</div><div class="mr-tm">’;
+if(me)o+=’<span class="mr-rd">’+(ar?‘✓✓’:‘✓’)+’</span>’;
+o+=ago(m.ts)+’</div></div></div>’;
 });
-h+=’<div id="cB"></div></div>’;
-h+=’<div style="position:relative">’;
-if(S.showEmo){h+=’<div class="emoji-pop"><div class="emoji-grid">’;EMOJIS.forEach(function(e){h+=’<button class="emoji-b" data-em="'+e+'">’+e+’</button>’});h+=’</div></div>’}
-h+=’<div class="chat-bar"><div class="chat-ex"><button onclick="S.showEmo=!S.showEmo;uC()">😊</button>’;
-h+=’<label style="display:flex;cursor:pointer;padding:8px;color:var(--s5)">📷<input type="file" accept="image/*" style="display:none" id="cF"></label></div>’;
-h+=’<input class="chat-inp" id="cI" placeholder="메시지 입력...">’;
-h+=’<button class="chat-snd" onclick="sndMsg()">➤</button></div></div></div>’;
-mc.innerHTML=h;
-setTimeout(function(){var b=document.getElementById(‘cB’);if(b)b.scrollIntoView({behavior:‘smooth’})},50);
-DS.markRead(S.gc,S.user.id);
-var inp=document.getElementById(‘cI’);
-if(inp){inp.value=S.chatI;inp.oninput=function(){S.chatI=inp.value};inp.onkeydown=function(e){if(e.key===‘Enter’)sndMsg()}}
-document.querySelectorAll(’[data-em]’).forEach(function(b){b.onclick=function(){S.chatI+=b.dataset.em;S.showEmo=false;uC()}});
-var cf=document.getElementById(‘cF’);
-if(cf)cf.onchange=function(e){var f=e.target.files[0];if(!f)return;toast(‘사진 업로드 중…’);DS.uploadImg(f).then(function(url){if(!url)return;var m={id:uid(),author:S.user.name,authorId:S.user.id,text:’’,mediaUrl:url,ts:Date.now(),readBy:[S.user.id]};S.msgs.push(m);uC();DS.addMsg(S.gc,m)})};
-document.querySelectorAll(’.msg-b [data-vi]’).forEach(function(i){i.onclick=function(){S.vMedia=i.dataset.vi;R()}});
+o+=’<div id="cbot"></div></div>’;
+o+=’<div style="position:relative">’;
+if(ST.emo){o+=’<div class="emo-pop">’;EMO.forEach(function(e){o+=’<button data-e="'+e+'">’+e+’</button>’});o+=’</div>’}
+o+=’<div class="chat-foot"><button onclick="ST.emo=!ST.emo;uC()">😊</button>’;
+o+=’<label style="cursor:pointer">📷<input type="file" accept="image/*" style="display:none" id="cf"></label>’;
+o+=’<input class="chat-in" id="cin" placeholder="메시지...">’;
+o+=’<button class="chat-send" onclick="sM()">➤</button></div></div></div>’;
+ct.innerHTML=o;
+setTimeout(function(){var b=document.getElementById(‘cbot’);if(b)b.scrollIntoView({behavior:‘smooth’})},50);
+var cin=document.getElementById(‘cin’);
+if(cin){cin.value=ST.chi;cin.oninput=function(){ST.chi=this.value};cin.onkeydown=function(e){if(e.key===‘Enter’)sM()}}
+document.querySelectorAll(’[data-e]’).forEach(function(b){b.onclick=function(){ST.chi+=this.getAttribute(‘data-e’);ST.emo=false;uC()}});
+var cf=document.getElementById(‘cf’);
+if(cf)cf.onchange=function(){var f=this.files[0];if(!f)return;toast(‘업로드 중…’);D.img(f).then(function(url){if(!url)return;var m={id:id(),author:ST.user.name,authorId:ST.user.id,text:’’,mediaUrl:url,ts:Date.now(),readBy:[ST.user.id]};ST.msgs.push(m);uC();D.ams(ST.gc,m)})};
+document.querySelectorAll(’.mr-bub [data-v]’).forEach(function(i){i.onclick=function(){ST.vm=this.getAttribute(‘data-v’);R()}});
 }
 
-function sndMsg(){var t=S.chatI.trim();if(!t)return;var m={id:uid(),author:S.user.name,authorId:S.user.id,text:t,ts:Date.now(),readBy:[S.user.id]};S.chatI=’’;S.showEmo=false;S.msgs.push(m);uC();DS.addMsg(S.gc,m)}
+function sM(){var t=ST.chi.trim();if(!t)return;var m={id:id(),author:ST.user.name,authorId:ST.user.id,text:t,ts:Date.now(),readBy:[ST.user.id]};ST.chi=’’;ST.emo=false;ST.msgs.push(m);uC();D.ams(ST.gc,m)}
 
-function rProf(mc){
-var my=S.posts.filter(function(p){return p.authorId===S.user.id});
-var lks=my.reduce(function(s,p){return s+(p.likes||[]).length},0);
-var h=’<div class="prof"><div class="prof-hd"><div class="prof-av" style="'+avS(S.user.name)+'">’+avE(S.user.name)+’</div>’;
-h+=’<h2 class="prof-nm">’+esc(S.user.name)+’</h2><span class="prof-un">@’+esc(S.user.username)+’</span>’;
-h+=’<div class="prof-stats"><div class="stat"><span class="stat-n">’+my.length+’</span><span class="stat-l">게시물</span></div>’;
-h+=’<div class="stat"><span class="stat-n">’+S.mems.length+’</span><span class="stat-l">멤버</span></div>’;
-h+=’<div class="stat"><span class="stat-n">’+lks+’</span><span class="stat-l">좋아요</span></div></div></div>’;
-h+=’<div class="prof-grid">’;
-if(!my.length)h+=’<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--tm)">📷 아직 게시물이 없어요</div>’;
-my.forEach(function(p){h+=’<div class="grid-i">’;if(p.mediaUrl)h+=’<img src="'+p.mediaUrl+'" loading="lazy">’;else h+=’<div class="grid-t">’+esc((p.text||’’).substr(0,60))+’</div>’;if(p.isPrivate)h+=’<div class="grid-prv">🔒</div>’;h+=’</div>’});
-h+=’</div><button class="btn-out" onclick="doOut()">🚪 로그아웃</button></div>’;
-mc.innerHTML=h;
+// PROFILE
+function rP(ct){
+var my=ST.posts.filter(function(p){return p.authorId===ST.user.id});
+var lk=my.reduce(function(s,p){return s+(p.likes||[]).length},0);
+var o=’<div class="prof-wrap"><div class="prof-hd"><div class="prof-av" style="'+as(ST.user.name)+'">’+ae(ST.user.name)+’</div>’;
+o+=’<div class="prof-nm">’+x(ST.user.name)+’</div><div class="prof-un">@’+x(ST.user.username)+’</div>’;
+o+=’<div class="prof-st"><div class="st"><div class="st-n">’+my.length+’</div><div class="st-l">게시물</div></div>’;
+o+=’<div class="st"><div class="st-n">’+ST.mems.length+’</div><div class="st-l">멤버</div></div>’;
+o+=’<div class="st"><div class="st-n">’+lk+’</div><div class="st-l">좋아요</div></div></div></div>’;
+o+=’<div class="prof-g">’;
+if(!my.length)o+=’<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94B3C2">📷 아직 게시물이 없어요</div>’;
+my.forEach(function(p){o+=’<div class="pg-i">’;if(p.mediaUrl)o+=’<img src="'+p.mediaUrl+'">’;else o+=’<div class="pg-t">’+x((p.text||’’).substr(0,50))+’</div>’;if(p.isPrivate)o+=’<div class="pg-prv">🔒</div>’;o+=’</div>’});
+o+=’</div><button class="btn-logout" onclick="doO()">🚪 로그아웃</button></div>’;
+ct.innerHTML=o;
 }
 
-var npMedia=null,npPriv=false;
-function npModal(){
-var h=’<div class="overlay" onclick="clNP()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-hd"><button class="modal-cls" onclick="clNP()">←</button><span class="modal-tt">새 게시물</span><button class="modal-ok" id="npOk">게시</button></div>’;
-h+=’<textarea class="post-ta" id="npTxt" placeholder="무슨 생각을 하고 있나요? ✨"></textarea><div id="npPrev"></div>’;
-h+=’<div class="modal-ft"><label class="media-btn">📷 사진<input type="file" accept="image/*" style="display:none" id="npFile"></label>’;
-h+=’<button class="prv-tog '+(npPriv?'prv':'pub')+'" id="npPrv">’+(npPriv?‘🔒 비공개’:‘🌐 공개’)+’</button></div></div></div>’;
+// NEW POST MODAL
+var NF=null,NV=false;
+function npM(){
+var o=’<div class="overlay" onclick="clN()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-hd"><button onclick="clN()">←</button><span>새 게시물</span><button id="nok">게시</button></div>’;
+o+=’<textarea class="post-ta" id="nta" placeholder="무슨 생각을 하고 있나요? ✨"></textarea><div id="npv"></div>’;
+o+=’<div class="modal-ft"><label class="mpick">📷 사진<input type="file" accept="image/*" style="display:none" id="nfi"></label>’;
+o+=’<button class="mpriv '+(NV?'prv':'pub')+'" id="npr">’+(NV?‘🔒 비공개’:‘🌐 공개’)+’</button></div></div></div>’;
 setTimeout(function(){
-var ta=document.getElementById(‘npTxt’);if(ta)ta.focus();
-var ok=document.getElementById(‘npOk’);if(ok)ok.onclick=subPost;
-var pf=document.getElementById(‘npFile’);if(pf)pf.onchange=function(e){var f=e.target.files[0];if(!f)return;npMedia=f;var pr=document.getElementById(‘npPrev’);if(pr)pr.innerHTML=’<div class="prev-w"><img src="'+URL.createObjectURL(f)+'"><button class="prev-rm" onclick="npMedia=null;document.getElementById(\'npPrev\').innerHTML=\'\'">✕</button></div>’};
-var pb=document.getElementById(‘npPrv’);if(pb)pb.onclick=function(){npPriv=!npPriv;pb.className=‘prv-tog ‘+(npPriv?‘prv’:‘pub’);pb.innerHTML=npPriv?‘🔒 비공개’:‘🌐 공개’};
-},100);
-return h;
+var ta=document.getElementById(‘nta’);if(ta)ta.focus();
+document.getElementById(‘nok’).onclick=subP;
+var fi=document.getElementById(‘nfi’);if(fi)fi.onchange=function(){var f=this.files[0];if(!f)return;NF=f;var pv=document.getElementById(‘npv’);if(pv)pv.innerHTML=’<div class="prev-w"><img src="'+URL.createObjectURL(f)+'"><button class="prev-rm" onclick="NF=null;document.getElementById(\'npv\').innerHTML=\'\'">✕</button></div>’};
+var pr=document.getElementById(‘npr’);if(pr)pr.onclick=function(){NV=!NV;this.className=‘mpriv ‘+(NV?‘prv’:‘pub’);this.innerHTML=NV?‘🔒 비공개’:‘🌐 공개’};
+},60);
+return o;
 }
-function clNP(){S.showNP=false;npMedia=null;npPriv=false;R()}
-function subPost(){
-var ta=document.getElementById(‘npTxt’);var txt=ta?ta.value.trim():’’;
-if(!txt&&!npMedia){toast(‘내용 또는 사진을 추가하세요’);return}
-var btn=document.getElementById(‘npOk’);if(btn){btn.disabled=true;btn.textContent=‘게시중…’}
-function done(url){var p={id:uid(),author:S.user.name,authorId:S.user.id,text:txt,mediaUrl:url||’’,isPrivate:npPriv,likes:[],comments:[],ts:Date.now()};S.posts.unshift(p);clNP();toast(‘게시물이 올라갔어요! ✨’);DS.addPost(S.gc,p)}
-if(npMedia){toast(‘사진 업로드 중…’);DS.uploadImg(npMedia).then(done)}else done(’’);
-}
-
-function invModal(){
-var h=’<div class="overlay" onclick="S.showInv=false;R()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-hd"><button class="modal-cls" onclick="S.showInv=false;R()">←</button><span class="modal-tt">그룹 초대</span><div style="width:48px"></div></div>’;
-h+=’<div class="invite-c"><div style="font-size:48px">🔗</div><p>아래 코드를 친구에게 공유하세요.<br>회원가입 시 이 코드를 입력하면<br>같은 그룹에 참여할 수 있어요!</p>’;
-h+=’<div class="code-box"><code class="code-t">’+S.gc+’</code><button class="btn-cp" id="cpB">📋 복사</button></div>’;
-h+=’<div style="margin-top:20px"><p style="font-size:12px;color:var(--tm);margin:0 0 8px">현재 멤버 (’+S.mems.length+‘명)</p><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">’;
-S.mems.forEach(function(m){h+=’<div style="display:flex;align-items:center;gap:6px;background:var(--s1);padding:5px 12px 5px 5px;border-radius:20px">’+avH(m.name,26)+’ <span style="font-size:13px;font-weight:600;color:var(--s7)">’+esc(m.name)+’</span></div>’});
-h+=’</div></div></div></div></div>’;
-setTimeout(function(){var cb=document.getElementById(‘cpB’);if(cb)cb.onclick=function(){try{navigator.clipboard.writeText(S.gc).then(function(){cb.innerHTML=‘✅ 복사됨’;setTimeout(function(){cb.innerHTML=‘📋 복사’},2000)})}catch(e){var t=document.createElement(‘textarea’);t.value=S.gc;document.body.appendChild(t);t.select();document.execCommand(‘copy’);document.body.removeChild(t);cb.innerHTML=‘✅ 복사됨’;setTimeout(function(){cb.innerHTML=‘📋 복사’},2000)}}},100);
-return h;
+function clN(){ST.np=false;NF=null;NV=false;R()}
+function subP(){
+var ta=document.getElementById(‘nta’),txt=ta?ta.value.trim():’’;
+if(!txt&&!NF){toast(‘내용 또는 사진을 추가하세요’);return}
+var btn=document.getElementById(‘nok’);if(btn){btn.disabled=true;btn.textContent=‘게시중…’}
+function done(url){var p={id:id(),author:ST.user.name,authorId:ST.user.id,text:txt,mediaUrl:url||’’,isPrivate:NV,likes:[],comments:[],ts:Date.now()};ST.posts.unshift(p);clN();toast(‘게시 완료! ✨’);D.ap(ST.gc,p)}
+if(NF){toast(‘업로드 중…’);D.img(NF).then(done)}else done(’’)
 }
 
-function doOut(){S.unsubs.forEach(function(f){f()});S.unsubs=[];S.user=null;S.gc=null;S.posts=[];S.msgs=[];S.mems=[];S.tab=‘feed’;aStep=1;aErr=’’;aF={u:’’,p:’’,n:’’,g:’’};lsD(‘jk_s’);R()}
+// INVITE MODAL
+function invM(){
+var o=’<div class="overlay" onclick="ST.inv=false;R()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-hd"><button onclick="ST.inv=false;R()">←</button><span>그룹 초대</span><div style="width:48px"></div></div>’;
+o+=’<div class="inv-body"><div style="font-size:44px">🔗</div><p>아래 코드를 친구에게 공유하세요!<br>회원가입 시 입력하면 참여됩니다</p>’;
+o+=’<div class="code-box"><code class="code-v">’+ST.gc+’</code><button class="btn-copy" id="cpb">📋 복사</button></div>’;
+o+=’<div style="margin-top:16px;font-size:12px;color:#94B3C2">멤버 ‘+ST.mems.length+‘명</div>’;
+o+=’<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px">’;
+ST.mems.forEach(function(m){o+=’<div style="display:flex;align-items:center;gap:4px;background:#E1F1FC;padding:4px 10px 4px 4px;border-radius:16px;font-size:12px;font-weight:600;color:#2A7099">’+av(m.name,22)+x(m.name)+’</div>’});
+o+=’</div></div></div></div>’;
+setTimeout(function(){var cb=document.getElementById(‘cpb’);if(cb)cb.onclick=function(){try{navigator.clipboard.writeText(ST.gc);cb.textContent=‘✅ 복사됨’;setTimeout(function(){cb.textContent=‘📋 복사’},2e3)}catch(e){var t=document.createElement(‘textarea’);t.value=ST.gc;document.body.appendChild(t);t.select();document.execCommand(‘copy’);document.body.removeChild(t);cb.textContent=‘✅ 복사됨’;setTimeout(function(){cb.textContent=‘📋 복사’},2e3)}}},60);
+return o;
+}
 
-function startL(){
-S.unsubs.forEach(function(f){f()});S.unsubs=[];
-if(fbOK){
-S.unsubs.push(DS.listenPosts(S.gc,function(ps){S.posts=ps;if(S.tab===‘feed’)uC()}));
-S.unsubs.push(DS.listenMsgs(S.gc,function(ms){S.msgs=ms;if(S.tab===‘chat’)uC()}));
-S.unsubs.push(DS.listenMem(S.gc,function(ms){S.mems=ms}));
+function doO(){ST.uns.forEach(function(f){f()});ST.uns=[];ST.user=null;ST.gc=null;ST.posts=[];ST.msgs=[];ST.mems=[];ST.tab=‘feed’;STEP=1;ERR=’’;FLD={u:’’,p:’’,n:’’,g:’’};d(‘jk’);R()}
+
+function sL(){
+ST.uns.forEach(function(f){f()});ST.uns=[];
+if(FB){
+ST.uns.push(D.lp(ST.gc,function(p){ST.posts=p;if(ST.tab===‘feed’)uC()}));
+ST.uns.push(D.lms(ST.gc,function(m){ST.msgs=m;if(ST.tab===‘chat’)uC()}));
+ST.uns.push(D.lm(ST.gc,function(m){ST.mems=m}));
 }else{
-var poll=function(){DS.getPosts(S.gc).then(function(p){S.posts=p});DS.getMsgs(S.gc).then(function(m){S.msgs=m});DS.getMembers(S.gc).then(function(m){S.mems=m})};
-poll();var iv=setInterval(poll,3000);S.unsubs.push(function(){clearInterval(iv)});
+var fn=function(){D.gp(ST.gc).then(function(p){ST.posts=p}).catch(function(){});D.gms(ST.gc).then(function(m){ST.msgs=m}).catch(function(){});D.gm(ST.gc).then(function(m){ST.mems=m}).catch(function(){})};
+fn();var iv=setInterval(fn,3e3);ST.uns.push(function(){clearInterval(iv)});
 }
 }
 
-function startApp(){
-initFB();
-var rendered=false;
-function doRender(){if(!rendered){rendered=true;R()}}
-// Force render after 3 seconds no matter what
-setTimeout(doRender,3000);
-var ss=loadSess();
-if(ss&&ss.user&&ss.gc){
-S.user=ss.user;S.gc=ss.gc;
-Promise.all([DS.getMembers(S.gc).catch(function(){return[]}),DS.getPosts(S.gc).catch(function(){return[]}),DS.getMsgs(S.gc).catch(function(){return[]})]).then(function(r){S.mems=r[0];S.posts=r[1];S.msgs=r[2];startL();doRender()}).catch(function(){doRender()});
-}else{doRender()}
+// ======= BOOT =======
+// 1) Render UI immediately
+var ss=g(‘jk’);
+if(ss&&ss.user&&ss.gc){ST.user=ss.user;ST.gc=ss.gc}
+R();
+
+// 2) Load Firebase in background, then sync data
+function bootFB(){
+try{
+if(typeof firebase!==‘undefined’&&firebase.initializeApp){
+firebase.initializeApp({apiKey:“AIzaSyDunCZpFNUUgnDet-lw4niLbCvVO4WQkaQ”,authDomain:“jackson-s-sns-practice.firebaseapp.com”,projectId:“jackson-s-sns-practice”,storageBucket:“jackson-s-sns-practice.firebasestorage.app”,messagingSenderId:“449794120985”,appId:“1:449794120985:web:c2e51982559f379bb63988”});
+db=firebase.firestore();FB=true;
+if(ST.user&&ST.gc){
+Promise.all([D.gm(ST.gc).catch(function(){return[]}),D.gp(ST.gc).catch(function(){return[]}),D.gms(ST.gc).catch(function(){return[]})]).then(function(r){ST.mems=r[0];ST.posts=r[1];ST.msgs=r[2];sL();uC()}).catch(function(){})
+}
+}
+}catch(e){console.log(‘FB err:’,e)}
 }
 
-// Dynamic SDK loading
-startApp();
+var sc1=document.createElement(‘script’);
+sc1.src=‘https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js’;
+sc1.onload=function(){
+var sc2=document.createElement(‘script’);
+sc2.src=‘https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js’;
+sc2.onload=bootFB;
+sc2.onerror=function(){};
+document.head.appendChild(sc2);
+};
+sc1.onerror=function(){};
+document.head.appendChild(sc1);
 </script>
 
 </body>
